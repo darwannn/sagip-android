@@ -3,10 +3,16 @@ package com.example.sagip;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.location.LocationManagerCompat;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +23,8 @@ import android.view.inputmethod.EditorInfo;
 import android.webkit.ConsoleMessage;
 import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
+import android.webkit.PermissionRequest;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -56,7 +64,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "PushNotification";
     private static final String CHANNEL_ID = "101";
-
+    private static final int CAMERA_PERMISSION_REQUEST_CODE = 1001;
+    private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1002;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1003;
     private Pusher pusher;
     private Channel channel;
     private String fcmToken;
@@ -69,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         // removes action bar
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
-
+        checkAndRequestPermissions();
         //invoke functions
         getFcmToken();
         createNotificationChannel();
@@ -77,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
         receivePusher();
 
         sagipWebView();
+        checkLocationEnabled();
+
     }
 
 
@@ -100,6 +112,72 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // ----------- permission
+    private void checkAndRequestPermissions() {
+        // Check and request camera permission
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{android.Manifest.permission.CAMERA},
+                        CAMERA_PERMISSION_REQUEST_CODE
+                );
+            }
+        }
+
+        // Check and request notification permission
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.VIBRATE)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{android.Manifest.permission.VIBRATE},
+                        NOTIFICATION_PERMISSION_REQUEST_CODE
+                );
+            }
+        }// Check and request location permission
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                        LOCATION_PERMISSION_REQUEST_CODE
+                );
+            }
+        }
+    }
+
+    // Handle permission request results
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, handle camera-related tasks
+            } else {
+                // Permission denied, handle accordingly (e.g., show a message)
+            }
+        } else if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, handle notification-related tasks
+            } else {
+                // Permission denied, handle accordingly (e.g., show a message)
+            }
+        } else if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, handle location-related tasks
+            } else {
+                // Permission denied, handle accordingly (e.g., show a message)
+            }
+        }
+    }
+
     // ----------- functions
 
     // get FCM token assigned to the device
@@ -112,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 fcmToken = task.getResult();
                 Log.v("myTag",fcmToken);
-                Toast.makeText(MainActivity.this, ""+fcmToken, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, ""+fcmToken, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -189,6 +267,12 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
 
+        webSettings.setMediaPlaybackRequiresUserGesture(false);
+        webSettings.setAllowFileAccess(true);
+        webSettings.setAllowFileAccessFromFileURLs(true);
+        webSettings.setAllowUniversalAccessFromFileURLs(true);
+        webSettings.setPluginState(WebSettings.PluginState.ON);
+
         sagipWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -201,12 +285,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return super.shouldOverrideUrlLoading(view, request);
             }
-            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
-                Log.d("WebView", consoleMessage.message()); // Log the console message
-                return true;
-            }
         });
-
+      
         sagipWebView.addJavascriptInterface(MainActivity.this, "AndroidInterface");
         sagipWebView.setWebChromeClient(new WebChromeClient(){
             @Override
@@ -214,6 +294,16 @@ public class MainActivity extends AppCompatActivity {
                                                            GeolocationPermissions.Callback callback) {
                 callback.invoke(origin, true, false);
             }
+            @Override
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
+                // Implement your file chooser logic here
+                return true;
+            }
+//            public void onPermissionRequest(final PermissionRequest request) {
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                    request.grant(request.getResources());
+//                }
+//            }
         });
         webSettings.setGeolocationEnabled(true);
 
@@ -234,6 +324,16 @@ public class MainActivity extends AppCompatActivity {
     private void loadUrl(String urlOrSearchTerm) {
         sagipWebView.loadUrl(urlOrSearchTerm);
     }
+
+    private void checkLocationEnabled() {
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
+            Toast.makeText(this, "Location services are not enabled", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Location services are enabled", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     // ----------- javascript interface
 
@@ -276,11 +376,31 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @JavascriptInterface
     public void vibrateOnHold() {
-        Vibrator vibrator = (Vibrator) getSystemService(MainActivity.this.VIBRATOR_SERVICE);
-        if (vibrator.hasVibrator()) {
-            vibrator.vibrate(500);
-        }
+//        Vibrator vibrator = (Vibrator) getSystemService(MainActivity.this.VIBRATOR_SERVICE);
+//        Toast.makeText(this, "showing", Toast.LENGTH_SHORT).show();
+//        if (vibrator.hasVibrator()) {
+//            vibrator.vibrate(500);
+//        }
+
+        String latitude = "14.8527";
+        String longitude = "120.8160";
+        Uri gmmIntentUri = Uri.parse("google.navigation:q=" + latitude + "," + longitude);
+
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+
+      //  if (mapIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(mapIntent);
+            Toast.makeText(this, "Google Maps is installed", Toast.LENGTH_SHORT).show();
+//        } else {
+//            Toast.makeText(this, "Google Maps is installed", Toast.LENGTH_SHORT).show();
+//        }
+
+
+
+        startActivity(mapIntent);
     }
 
 }

@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter a URL or search term"
-        android:text="https://sagip-xzze-h3gosfrgi-darwannn.vercel.app/login"
+        android:text="https://sagip-xzze.vercel.app/"
         android:imeOptions="actionGo"
         android:inputType="text"
         android:imeActionLabel="Go"

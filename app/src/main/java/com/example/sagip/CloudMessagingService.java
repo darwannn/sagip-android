@@ -2,7 +2,12 @@ package com.example.sagip;
 
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.media.AudioManager;
+import android.os.Build;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -53,5 +58,7 @@ public class CloudMessagingService extends FirebaseMessagingService {
         notificationManager.notify(1, builder.build());
     }
 
+    public static void playAudio(Context context) {
 
+    }
 }
