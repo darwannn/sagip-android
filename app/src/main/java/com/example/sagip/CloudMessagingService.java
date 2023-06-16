@@ -32,13 +32,13 @@ public class CloudMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         showNotification(remoteMessage.getNotification().getTitle(),remoteMessage.getNotification().getBody());
-        Toast.makeText(this, "4", Toast.LENGTH_LONG).show();
+       // Toast.makeText(this, ""+remoteMessage, Toast.LENGTH_LONG).show();
 
     }
 
 
     private void showNotification(String title,String message){
-        Toast.makeText(this, "3", Toast.LENGTH_LONG).show();
+      //  Toast.makeText(this, "3", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);

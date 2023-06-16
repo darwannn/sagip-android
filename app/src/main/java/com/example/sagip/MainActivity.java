@@ -161,6 +161,11 @@ public class MainActivity extends AppCompatActivity {
                 videoCaptureIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 3);
                 videoCaptureIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
 
+                Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                contentSelectionIntent.setType("*/*");
+                contentSelectionIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+
                 Intent[] intentArray;
                 if (imageCaptureIntent != null && videoCaptureIntent != null) {
                     intentArray = new Intent[]{imageCaptureIntent, videoCaptureIntent};
@@ -171,11 +176,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     intentArray = new Intent[0];
                 }
-
-                Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
-                contentSelectionIntent.setType("*/*");
-                contentSelectionIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 
                 Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
                 chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
@@ -217,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
                 if (actionId == EditorInfo.IME_ACTION_GO) {
                     String urlOrSearchTerm = searchBar.getText().toString();
                     loadUrl(urlOrSearchTerm);
+                    Toast.makeText(MainActivity.this, ""+urlOrSearchTerm, Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 return false;
