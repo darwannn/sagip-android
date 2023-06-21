@@ -267,10 +267,11 @@ public class MainActivity extends AppCompatActivity {
 
     // Create an image file
     private File createImageFile() throws IOException {
-        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "img_" + timeStamp + "_";
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String uniqueSuffix = timeStamp + "_" + Math.round(Math.random() * 1E9);
+        String imageName =  uniqueSuffix + ".jpg";
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        return File.createTempFile(imageFileName, ".jpg", storageDir);
+        return File.createTempFile(imageName, null, storageDir);
     }
 
     @Override
