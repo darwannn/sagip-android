@@ -80,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
     private Channel channel;
     private String fcmToken;
 
+
+    private String fileChooser;
     private static final String TAGGG = MainActivity.class.getSimpleName();
     public ValueCallback<Uri> mUploadMessage;
     public static final int FILECHOOSER_RESULTCODE = 5173;
@@ -101,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         checkAndRequestPermissions();
         //invoke functions
         getFcmToken();
+        subscribeToTopic();
         createNotificationChannel();
 
         receivePusher();
@@ -272,6 +275,10 @@ public class MainActivity extends AppCompatActivity {
         String imageName =  uniqueSuffix + ".jpg";
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         return File.createTempFile(imageName, null, storageDir);
+//        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+//        String imageFileName = "img_" + timeStamp + "_";
+//        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+//        return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
     @Override
@@ -399,6 +406,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void subscribeToTopic() {
+        FirebaseMessaging.getInstance().subscribeToTopic("sagip").addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Toast.makeText(MainActivity.this, "subascriba", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+
 
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -412,10 +430,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    app_id = "1614935"
-//    key = "83ffcdeb54b7ffa56946"
-//    secret = "0844c188d0d0bf89aee3"
-//    cluster = "ap1"
+
+
 
     private void receivePusher() {
         PusherOptions options = new PusherOptions();
@@ -605,6 +621,13 @@ public class MainActivity extends AppCompatActivity {
 
 
 //        startActivity(mapIntent);
+    }
+
+    @JavascriptInterface
+    public void setFileChooser(String option) {
+        Toast.makeText(this, "set to " + option, Toast.LENGTH_SHORT).show();
+       fileChooser = option;
+//        Toast.makeText(this, "hhelooo", Toast.LENGTH_SHORT).show();
     }
 
 }
