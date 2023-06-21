@@ -135,56 +135,49 @@ public class MainActivity extends AppCompatActivity {
         sagipWebView.addJavascriptInterface(MainActivity.this, "AndroidInterface");
 
 
-        sagipWebView.setWebChromeClient(new WebChromeClient(){
-
+        sagipWebView.setWebChromeClient(new WebChromeClient() {
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
                 if (mUMA != null) {
                     mUMA.onReceiveValue(null);
                 }
                 mUMA = filePathCallback;
 
-                String[] mimeTypes = {"image/*"};
-                Intent imageCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (imageCaptureIntent.resolveActivity(MainActivity.this.getPackageManager()) != null) {
-                    File photoFile = null;
-                    try {
-                        photoFile = createImageFile();
-                    } catch (IOException ex) {
-                        Log.e(TAGGG, "Image file creation failed", ex);
-                    }
-                    if (photoFile != null) {
-                        mCM = "file:" + photoFile.getAbsolutePath();
-                        imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-                    } else {
-                        imageCaptureIntent = null;
-                    }
-                }
-
-                Intent videoCaptureIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                videoCaptureIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 3);
-                videoCaptureIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
-
                 Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
                 contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
                 contentSelectionIntent.setType("*/*");
-                contentSelectionIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 
-                Intent[] intentArray;
-                if (imageCaptureIntent != null && videoCaptureIntent != null) {
-                    intentArray = new Intent[]{imageCaptureIntent, videoCaptureIntent};
-                } else if (imageCaptureIntent != null) {
-                    intentArray = new Intent[]{imageCaptureIntent};
-                } else if (videoCaptureIntent != null) {
-                    intentArray = new Intent[]{videoCaptureIntent};
+                String fileChooser = fileChooserParams.getAcceptTypes()[0];
+                if (true) {
+                    Toast.makeText(MainActivity.this, "camera", Toast.LENGTH_SHORT).show();
+                    Intent imageCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    if (imageCaptureIntent.resolveActivity(MainActivity.this.getPackageManager()) != null) {
+                        File photoFile = null;
+                        try {
+                            photoFile = createImageFile();
+                        } catch (IOException ex) {
+                            Log.e(TAGGG, "Image file creation failed", ex);
+                        }
+                        if (photoFile != null) {
+                            mCM = "file:" + photoFile.getAbsolutePath();
+                            imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                            startActivityForResult(imageCaptureIntent, FCR);
+                        } else {
+                            // Handle file creation failure
+                        }
+                    }
+                } else if (fileChooser.equals("camcorder")) {
+                    Toast.makeText(MainActivity.this, "camcorder", Toast.LENGTH_SHORT).show();
+                    Intent videoCaptureIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                    videoCaptureIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 3);
+                    videoCaptureIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
+                    startActivityForResult(videoCaptureIntent, FCR);
+                }  else if (fileChooser.equals("file")) {
+                    Toast.makeText(MainActivity.this, "file", Toast.LENGTH_SHORT).show();
+                    Intent chooserIntent = Intent.createChooser(contentSelectionIntent, "File Chooser");
+                    startActivityForResult(chooserIntent, FCR);
                 } else {
-                    intentArray = new Intent[0];
+                    Toast.makeText(MainActivity.this, "null", Toast.LENGTH_SHORT).show();
                 }
-
-                Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
-                chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
-                chooserIntent.putExtra(Intent.EXTRA_TITLE, "File Chooser");
-                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
-                startActivityForResult(chooserIntent, FCR);
 
                 return true;
             }
@@ -193,8 +186,8 @@ public class MainActivity extends AppCompatActivity {
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
                 callback.invoke(origin, true, false);
             }
-
         });
+
 
 
         sagipWebView.setWebViewClient(new WebViewClient() {
@@ -234,17 +227,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
-
         if (Build.VERSION.SDK_INT >= 21) {
             Uri[] results = null;
-            //Check if response is positive
+            // Check if response is positive
             if (resultCode == Activity.RESULT_OK) {
                 if (requestCode == FCR) {
                     if (null == mUMA) {
                         return;
                     }
                     if (intent == null) {
-                        //Capture Photo if no image available
+                        // Capture Photo if no image available
                         if (mCM != null) {
                             results = new Uri[]{Uri.parse(mCM)};
                         }
@@ -260,13 +252,14 @@ public class MainActivity extends AppCompatActivity {
             mUMA = null;
         } else {
             if (requestCode == FCR) {
-                if (null == mUM) return;
+                if (null == mUMA) return;
                 Uri result = intent == null || resultCode != RESULT_OK ? null : intent.getData();
-                mUM.onReceiveValue(result);
-                mUM = null;
+                mUMA.onReceiveValue(new Uri[]{result});
+                mUMA = null;
             }
         }
     }
+
 
     // Create an image file
     private File createImageFile() throws IOException {
