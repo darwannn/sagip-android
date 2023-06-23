@@ -90,6 +90,18 @@ public class MainActivity extends AppCompatActivity {
     private ValueCallback<Uri[]> mUMA;
     private final static int FCR = 1;
 
+    int PERMISSION_ALL = 1;
+    String[] PERMISSIONS = {
+            android.Manifest.permission.READ_CONTACTS,
+            android.Manifest.permission.WRITE_CONTACTS,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.VIBRATE,
+            android.Manifest.permission.READ_SMS,
+            android.Manifest.permission.CAMERA,
+            android.Manifest.permission.ACCESS_FINE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION
+    };
+
     @Override
     @SuppressLint("SetJavaScriptEnabled")
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
-        checkAndRequestPermissions();
+
         //invoke functions
         getFcmToken();
         subscribeToTopic();
@@ -159,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         if (photoFile != null) {
                             mCM = "file:" + photoFile.getAbsolutePath();
-                            imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                           // imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
                             startActivityForResult(imageCaptureIntent, FCR);
                         } else {
                             // Handle file creation failure
@@ -263,15 +275,10 @@ public class MainActivity extends AppCompatActivity {
 
     // Create an image file
     private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String uniqueSuffix = timeStamp + "_" + Math.round(Math.random() * 1E9);
-        String imageName =  uniqueSuffix + ".jpg";
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "img_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        return File.createTempFile(imageName, null, storageDir);
-//        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-//        String imageFileName = "img_" + timeStamp + "_";
-//        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-//        return File.createTempFile(imageFileName, ".jpg", storageDir);
+        return File.createTempFile(imageFileName, ".jpg", storageDir);
     }
 
     @Override
@@ -283,15 +290,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    int PERMISSION_ALL = 1;
-    String[] PERMISSIONS = {
-            android.Manifest.permission.READ_CONTACTS,
-            android.Manifest.permission.WRITE_CONTACTS,
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.READ_SMS,
-            android.Manifest.permission.CAMERA
-    };
 
     public static boolean hasPermissions(Context context, String... permissions) {
         if (context != null && permissions != null) {
@@ -316,44 +314,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // ----------- permission
-    private void checkAndRequestPermissions() {
-        // Check and request camera permission
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                ActivityCompat.requestPermissions(
-                        this,
-                        new String[]{android.Manifest.permission.CAMERA},
-                        CAMERA_PERMISSION_REQUEST_CODE
-                );
-            }
-        }
 
-        // Check and request notification permission
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.VIBRATE)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                ActivityCompat.requestPermissions(
-                        this,
-                        new String[]{android.Manifest.permission.VIBRATE},
-                        NOTIFICATION_PERMISSION_REQUEST_CODE
-                );
-            }
-        }// Check and request location permission
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                ActivityCompat.requestPermissions(
-                        this,
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION},
-                        LOCATION_PERMISSION_REQUEST_CODE
-                );
-            }
-        }
-    }
 
     // Handle permission request results
     @Override
@@ -474,66 +435,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void sagipWebView() {
-        sagipWebView = findViewById(R.id.sagipWebView);
-        WebSettings webSettings = sagipWebView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setDomStorageEnabled(true);
-
-        webSettings.setMediaPlaybackRequiresUserGesture(false);
-        webSettings.setAllowFileAccess(true);
-        webSettings.setAllowFileAccessFromFileURLs(true);
-        webSettings.setAllowUniversalAccessFromFileURLs(true);
-        webSettings.setPluginState(WebSettings.PluginState.ON);
-
-        sagipWebView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                String url = request.getUrl().toString();
-                if (url.startsWith("tel:")) {
-                    Intent intent = new Intent(Intent.ACTION_DIAL);
-                    intent.setData(Uri.parse(url));
-                    startActivity(intent);
-                    return true;
-                }
-                return super.shouldOverrideUrlLoading(view, request);
-            }
-        });
-
-        sagipWebView.addJavascriptInterface(MainActivity.this, "AndroidInterface");
-        sagipWebView.setWebChromeClient(new WebChromeClient(){
-            @Override
-            public void onGeolocationPermissionsShowPrompt(String origin,
-                                                           GeolocationPermissions.Callback callback) {
-                callback.invoke(origin, true, false);
-            }
-            @Override
-            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
-                // Implement your file chooser logic here
-                return true;
-            }
-//            public void onPermissionRequest(final PermissionRequest request) {
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                    request.grant(request.getResources());
-//                }
-//            }
-        });
-        webSettings.setGeolocationEnabled(true);
-
-        searchBar = findViewById(R.id.searchBar);
-        searchBar.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_GO) {
-                    String urlOrSearchTerm = searchBar.getText().toString();
-                    loadUrl(urlOrSearchTerm);
-                    return true;
-                }
-                return false;
-            }
-        });
-    }
-
     private void loadUrl(String urlOrSearchTerm) {
         sagipWebView.loadUrl(urlOrSearchTerm);
     }
@@ -596,32 +497,31 @@ public class MainActivity extends AppCompatActivity {
         if (vibrator.hasVibrator()) {
             vibrator.vibrate(500);
         }
-
-//        String latitude = "14.8527";
-//        String longitude = "120.8160";
-//        Uri gmmIntentUri = Uri.parse("google.navigation:q=" + latitude + "," + longitude);
-//
-//        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-//        mapIntent.setPackage("com.google.android.apps.maps");
-//
-//        //  if (mapIntent.resolveActivity(getPackageManager()) != null) {
-//        startActivity(mapIntent);
-//        Toast.makeText(this, "Google Maps is installed", Toast.LENGTH_SHORT).show();
-////        } else {
-////            Toast.makeText(this, "Google Maps is installed", Toast.LENGTH_SHORT).show();
-////        }
-
-
-
-//        startActivity(mapIntent);
     }
 
     @JavascriptInterface
     public void setFileChooser(String option) {
         Toast.makeText(this, "set to " + option, Toast.LENGTH_SHORT).show();
-       fileChooser = option;
+        fileChooser = option;
 //        Toast.makeText(this, "hhelooo", Toast.LENGTH_SHORT).show();
     }
+    @JavascriptInterface
+    public void routeTo(String lat,String lng) {
+        String latitude = lat;
+        String longitude = lng;
+        latitude = "14.8527";
+        longitude = "120.8160";
+        Uri gmmIntentUri = Uri.parse("google.navigation:q=" + latitude + "," + longitude);
 
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+
+        if (mapIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(mapIntent);
+            Toast.makeText(this, "Google Maps is installed", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Google Maps is installed", Toast.LENGTH_SHORT).show();
+        }
+        startActivity(mapIntent);
+    }
 }
-
