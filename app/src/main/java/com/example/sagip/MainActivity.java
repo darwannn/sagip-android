@@ -5,6 +5,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.location.LocationManagerCompat;
 
 import android.Manifest;
@@ -20,6 +21,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private String fcmToken;
 
 
-    private String fileChooser;
+    private String mediaChooser;
     private static final String TAGGG = MainActivity.class.getSimpleName();
     public ValueCallback<Uri> mUploadMessage;
     public static final int FILECHOOSER_RESULTCODE = 5173;
@@ -95,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             android.Manifest.permission.READ_CONTACTS,
             android.Manifest.permission.WRITE_CONTACTS,
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.VIBRATE,
+            android.Manifest.permission.VIBRATE,
             android.Manifest.permission.READ_SMS,
             android.Manifest.permission.CAMERA,
             android.Manifest.permission.ACCESS_FINE_LOCATION,
@@ -112,6 +114,9 @@ public class MainActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
+        // fix error exposed beyond app through ClipData.Item.getUri()
+//        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+//        StrictMode.setVmPolicy(builder.build());
 
         //invoke functions
         getFcmToken();
@@ -149,20 +154,20 @@ public class MainActivity extends AppCompatActivity {
 
         sagipWebView.setWebChromeClient(new WebChromeClient() {
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+
                 if (mUMA != null) {
                     mUMA.onReceiveValue(null);
                 }
                 mUMA = filePathCallback;
 
-                Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
-                contentSelectionIntent.setType("*/*");
+                String[] mimeTypes = {"image/*"};
+                Intent intent = null;
+                Toast.makeText(MainActivity.this, "onShowFileChooser", Toast.LENGTH_SHORT).show();
+                if (mediaChooser.equals("camcorder")) {
+                    Toast.makeText(MainActivity.this, "CAMERA", Toast.LENGTH_SHORT).show();
+                    intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    if (intent.resolveActivity(MainActivity.this.getPackageManager()) != null) {
 
-                String fileChooser = fileChooserParams.getAcceptTypes()[0];
-                if (true) {
-                    Toast.makeText(MainActivity.this, "camera", Toast.LENGTH_SHORT).show();
-                    Intent imageCaptureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    if (imageCaptureIntent.resolveActivity(MainActivity.this.getPackageManager()) != null) {
                         File photoFile = null;
                         try {
                             photoFile = createImageFile();
@@ -171,28 +176,44 @@ public class MainActivity extends AppCompatActivity {
                         }
                         if (photoFile != null) {
                             mCM = "file:" + photoFile.getAbsolutePath();
-                           // imageCaptureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-                            startActivityForResult(imageCaptureIntent, FCR);
+                            Toast.makeText(MainActivity.this, ""+photoFile, Toast.LENGTH_SHORT).show();
+                           // Uri sharedFileUri = FileProvider.getUriForFile(MainActivity.this, "com.example.sagip.fileprovider", photoFile);
+                             //intent.putExtra(MediaStore.EXTRA_OUTPUT, sharedFileUri);
+
+                            Uri imageUri = FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID + ".provider",photoFile);
+                            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         } else {
-                            // Handle file creation failure
+                            intent = null;
                         }
+                    } else {
+
                     }
-                } else if (fileChooser.equals("camcorder")) {
-                    Toast.makeText(MainActivity.this, "camcorder", Toast.LENGTH_SHORT).show();
-                    Intent videoCaptureIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                    videoCaptureIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 3);
-                    videoCaptureIntent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
-                    startActivityForResult(videoCaptureIntent, FCR);
-                }  else if (fileChooser.equals("file")) {
-                    Toast.makeText(MainActivity.this, "file", Toast.LENGTH_SHORT).show();
-                    Intent chooserIntent = Intent.createChooser(contentSelectionIntent, "File Chooser");
-                    startActivityForResult(chooserIntent, FCR);
+                } else if (mediaChooser.equals("camcorder")) {
+                    Toast.makeText(MainActivity.this, "CAMCORDER", Toast.LENGTH_SHORT).show();
+                    intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                    intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 3);
+                    intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
+                } else if (mediaChooser.equals("file")) {
+                    Toast.makeText(MainActivity.this, "FILE", Toast.LENGTH_SHORT).show();
+                    intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("*/*");
+                    intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
                 } else {
-                    Toast.makeText(MainActivity.this, "null", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "ELSE", Toast.LENGTH_SHORT).show();
                 }
 
-                return true;
+                if (intent != null) {
+                    startActivityForResult(intent, FCR);
+                    Toast.makeText(MainActivity.this, "T", Toast.LENGTH_SHORT).show();
+                    return true;
+                } else {
+                    Toast.makeText(MainActivity.this, "F", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
             }
+
 
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
@@ -500,9 +521,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @JavascriptInterface
-    public void setFileChooser(String option) {
+    public void setMediaChooser(String option) {
         Toast.makeText(this, "set to " + option, Toast.LENGTH_SHORT).show();
-        fileChooser = option;
+        mediaChooser = option;
 //        Toast.makeText(this, "hhelooo", Toast.LENGTH_SHORT).show();
     }
     @JavascriptInterface
