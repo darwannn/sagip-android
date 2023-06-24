@@ -162,9 +162,9 @@ public class MainActivity extends AppCompatActivity {
 
                 String[] mimeTypes = {"image/*"};
                 Intent intent = null;
-                Toast.makeText(MainActivity.this, "onShowFileChooser", Toast.LENGTH_SHORT).show();
-                if (mediaChooser.equals("camcorder")) {
-                    Toast.makeText(MainActivity.this, "CAMERA", Toast.LENGTH_SHORT).show();
+               // Toast.makeText(MainActivity.this, "onShowFileChooser", Toast.LENGTH_SHORT).show();
+                if (mediaChooser.equals("camera")) {
+                 //   Toast.makeText(MainActivity.this, "CAMERA", Toast.LENGTH_SHORT).show();
                     intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     if (intent.resolveActivity(MainActivity.this.getPackageManager()) != null) {
 
@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         if (photoFile != null) {
                             mCM = "file:" + photoFile.getAbsolutePath();
-                            Toast.makeText(MainActivity.this, ""+photoFile, Toast.LENGTH_SHORT).show();
+                         //   Toast.makeText(MainActivity.this, ""+photoFile, Toast.LENGTH_SHORT).show();
                            // Uri sharedFileUri = FileProvider.getUriForFile(MainActivity.this, "com.example.sagip.fileprovider", photoFile);
                              //intent.putExtra(MediaStore.EXTRA_OUTPUT, sharedFileUri);
 
@@ -190,26 +190,24 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 } else if (mediaChooser.equals("camcorder")) {
-                    Toast.makeText(MainActivity.this, "CAMCORDER", Toast.LENGTH_SHORT).show();
+                  //  Toast.makeText(MainActivity.this, "CAMCORDER", Toast.LENGTH_SHORT).show();
                     intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
                     intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 3);
                     intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
-                } else if (mediaChooser.equals("file")) {
-                    Toast.makeText(MainActivity.this, "FILE", Toast.LENGTH_SHORT).show();
+                } else {
+                  //  Toast.makeText(MainActivity.this, "FILE", Toast.LENGTH_SHORT).show();
                     intent = new Intent(Intent.ACTION_GET_CONTENT);
                     intent.addCategory(Intent.CATEGORY_OPENABLE);
                     intent.setType("*/*");
                     intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-                } else {
-                    Toast.makeText(MainActivity.this, "ELSE", Toast.LENGTH_SHORT).show();
                 }
 
                 if (intent != null) {
                     startActivityForResult(intent, FCR);
-                    Toast.makeText(MainActivity.this, "T", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(MainActivity.this, "T", Toast.LENGTH_SHORT).show();
                     return true;
                 } else {
-                    Toast.makeText(MainActivity.this, "F", Toast.LENGTH_SHORT).show();
+                  //  Toast.makeText(MainActivity.this, "F", Toast.LENGTH_SHORT).show();
                     return false;
                 }
             }
@@ -246,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
                 if (actionId == EditorInfo.IME_ACTION_GO) {
                     String urlOrSearchTerm = searchBar.getText().toString();
                     loadUrl(urlOrSearchTerm);
-                    Toast.makeText(MainActivity.this, ""+urlOrSearchTerm, Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MainActivity.this, ""+urlOrSearchTerm, Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 return false;
