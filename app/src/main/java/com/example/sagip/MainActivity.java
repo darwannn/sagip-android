@@ -26,6 +26,7 @@ import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.ConsoleMessage;
 import android.webkit.GeolocationPermissions;
@@ -37,6 +38,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -103,12 +105,31 @@ public class MainActivity extends AppCompatActivity {
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION
     };
-
+    private Button startButton;
+    private Button stopButton;
     @Override
     @SuppressLint("SetJavaScriptEnabled")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        startButton = findViewById(R.id.start_button);
+        stopButton = findViewById(R.id.stop_button);
+
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startForegroundService();
+            }
+        });
+
+        stopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopForegroundService();
+            }
+        });
 
         // removes action bar
         ActionBar actionBar = getSupportActionBar();
@@ -333,6 +354,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        sagipWebView.onPause();
+//
+//    }
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        sagipWebView.onResume();
+//
+//    }
+
 
 
     // Handle permission request results
@@ -542,5 +577,16 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Google Maps is installed", Toast.LENGTH_SHORT).show();
         }
         startActivity(mapIntent);
+    }
+    @JavascriptInterface
+    public void startForegroundService() {
+        Intent serviceIntent = new Intent(this, ForegroundService.class);
+        serviceIntent.putExtra("inputExtra", "Foreground Service Example");
+        startService(serviceIntent);
+    }
+    @JavascriptInterface
+    public void stopForegroundService() {
+        Intent serviceIntent = new Intent(this, ForegroundService.class);
+        stopService(serviceIntent);
     }
 }
