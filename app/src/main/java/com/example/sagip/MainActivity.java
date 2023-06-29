@@ -21,6 +21,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.StrictMode;
 import android.os.Vibrator;
 import android.provider.MediaStore;
@@ -490,7 +492,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadUrl(String urlOrSearchTerm) {
-        sagipWebView.loadUrl(urlOrSearchTerm);
+
+        // Run WebView on a separate thread
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                sagipWebView.loadUrl(urlOrSearchTerm);
+            }
+        }, 1000);
+        //sagipWebView.loadUrl(urlOrSearchTerm);
     }
 
     private void checkLocationEnabled() {
