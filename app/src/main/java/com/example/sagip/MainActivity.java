@@ -45,8 +45,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -66,17 +73,20 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
 
     private WebView sagipWebView;
     private EditText searchBar;
-
+    private Timer intervalTimer;
     private static final String TAG = "PushNotification";
     private static final String CHANNEL_ID = "101";
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 1001;
@@ -154,6 +164,9 @@ public class MainActivity extends AppCompatActivity {
         if(!hasPermissions(getApplicationContext(), PERMISSIONS)){
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         }
+
+
+
 
         sagipWebView = findViewById(R.id.sagipWebView);
         WebSettings webSettings = sagipWebView.getSettings();
@@ -274,6 +287,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //change
+        String url = getIntent().getStringExtra(ForegroundService.KEY_URL);
+        if (url != null && !url.isEmpty()) {
+            // Load the URL in the WebView
+            sagipWebView.loadUrl(url);
+        }
 
     }
 
@@ -506,12 +525,24 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkLocationEnabled() {
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
-            Toast.makeText(this, "Location services are not enabled", Toast.LENGTH_SHORT).show();
+        String[] PERMISSIONS = {
+
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION
+        };
+
+        if(!hasPermissions(getApplicationContext(), PERMISSIONS)){
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         } else {
-            Toast.makeText(this, "Location services are enabled", Toast.LENGTH_SHORT).show();
+            // Location permission granted, check if location services are enabled
+            if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
+                Toast.makeText(this, "Location services are not enabled", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Location services are enabled", Toast.LENGTH_SHORT).show();
+            }
         }
     }
+
 
 
     // ----------- javascript interface
@@ -591,13 +622,81 @@ public class MainActivity extends AppCompatActivity {
     }
     @JavascriptInterface
     public void startForegroundService() {
+        intervalTimer = new Timer();
+        intervalTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0Nzg4ZGZkMjk1ZTJmMTg0ZTU1ZDIwZiIsImlhdCI6MTY4Nzc5NTgyNCwiZXhwIjoxNjg4NDAwNjI0fQ.iW8ys_m7ocxuFyGgZC68iYbYz5_kOngCB9dh7oqaI3g";
+        double latitude = 123.456;
+        double longitude = 789.012;
+        sendLocationUpdate( token, latitude, longitude);
+            }
+        }, 0, 3000);
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         serviceIntent.putExtra("inputExtra", "Foreground Service Example");
         startService(serviceIntent);
     }
     @JavascriptInterface
     public void stopForegroundService() {
+        //intervalTimer.cancel();
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         stopService(serviceIntent);
     }
+
+    public void sendLocationUpdate(final String token, final double latitude, final double longitude) {
+        Log.d(TAG, "Location");
+        try {
+            JSONObject jsonBody = new JSONObject();
+            jsonBody.put("to", "64788dfd295e2f184e55d20f");
+            jsonBody.put("channel", "location");
+
+            JSONObject contentJson = new JSONObject();
+            contentJson.put("latitude", latitude);
+            contentJson.put("longitude", longitude);
+
+            jsonBody.put("content", contentJson);
+
+            String url = "https://sagip.onrender.com/api/pusher";
+
+            StringRequest request = new StringRequest(Request.Method.PUT, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            // Handle the response as a string
+                            Log.d(TAG, "Location update sent successfully");
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e(TAG, "Failed to send location update: " + error.toString());
+                }
+            }) {
+                @Override
+                public Map<String, String> getHeaders() {
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Authorization", "Bearer " + token);
+                    return headers;
+                }
+
+                @Override
+                public String getBodyContentType() {
+                    return "application/json";
+                }
+
+                @Override
+                public byte[] getBody() throws AuthFailureError {
+                    return jsonBody.toString().getBytes();
+                }
+            };
+
+            RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+            requestQueue.add(request);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
 }
