@@ -16,6 +16,8 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
@@ -56,6 +58,11 @@ import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -116,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
             android.Manifest.permission.CAMERA,
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION
+           // android.Manifest.permission.POST_NOTIFICATIONS,
     };
     private Button startButton;
     private Button stopButton;
@@ -629,7 +637,8 @@ public class MainActivity extends AppCompatActivity {
         String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0Nzg4ZGZkMjk1ZTJmMTg0ZTU1ZDIwZiIsImlhdCI6MTY4Nzc5NTgyNCwiZXhwIjoxNjg4NDAwNjI0fQ.iW8ys_m7ocxuFyGgZC68iYbYz5_kOngCB9dh7oqaI3g";
         double latitude = 123.456;
         double longitude = 789.012;
-        sendLocationUpdate( token, latitude, longitude);
+        //sendLocationUpdate( token, latitude, longitude);
+                sendLocationUpdate(token);
             }
         }, 0, 3000);
         Intent serviceIntent = new Intent(this, ForegroundService.class);
@@ -638,63 +647,92 @@ public class MainActivity extends AppCompatActivity {
     }
     @JavascriptInterface
     public void stopForegroundService() {
-        //intervalTimer.cancel();
+        intervalTimer.cancel();
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         stopService(serviceIntent);
     }
 
-    public void sendLocationUpdate(final String token, final double latitude, final double longitude) {
-        Log.d(TAG, "Location");
-        try {
-            JSONObject jsonBody = new JSONObject();
-            jsonBody.put("to", "64788dfd295e2f184e55d20f");
-            jsonBody.put("channel", "location");
+    //public void sendLocationUpdate(final String token, final double latitude, final double longitude) {
 
-            JSONObject contentJson = new JSONObject();
-            contentJson.put("latitude", latitude);
-            contentJson.put("longitude", longitude);
+    public void sendLocationUpdate(final String token) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
+                LocationRequest locationRequest = LocationRequest.create();
+                locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                //locationRequest.setInterval(1000); // Update location every 1 second
 
-            jsonBody.put("content", contentJson);
+                LocationCallback locationCallback = new LocationCallback() {
+                    @Override
+                    public void onLocationResult(LocationResult locationResult) {
+                        Location location = locationResult.getLastLocation();
+                        double latitude = location.getLatitude();
+                        double longitude = location.getLongitude();
+                        Log.d(TAG, "latitude " + latitude);
+                        Log.d(TAG, "longitude " + longitude);
 
-            String url = "https://sagip.onrender.com/api/pusher";
+                        try {
+                            // Create JSON payload and send location update to the server
+                            JSONObject jsonBody = new JSONObject();
+                            jsonBody.put("to", "64788dfd295e2f184e55d20f");
+                            jsonBody.put("channel", "location");
 
-            StringRequest request = new StringRequest(Request.Method.PUT, url,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            // Handle the response as a string
-                            Log.d(TAG, "Location update sent successfully");
+                            JSONObject contentJson = new JSONObject();
+                            contentJson.put("latitude", latitude);
+                            contentJson.put("longitude", longitude);
+
+                            jsonBody.put("content", contentJson);
+
+                            String url = "https://sagip.onrender.com/api/pusher";
+
+                            StringRequest request = new StringRequest(Request.Method.PUT, url,
+                                    new Response.Listener<String>() {
+                                        @Override
+                                        public void onResponse(String response) {
+                                            Log.d(TAG, "Location update sent successfully");
+                                        }
+                                    }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Log.e(TAG, "Failed to send location update: " + error.toString());
+                                }
+                            }) {
+                                @Override
+                                public Map<String, String> getHeaders() {
+                                    Map<String, String> headers = new HashMap<>();
+                                    headers.put("Authorization", "Bearer " + token);
+                                    return headers;
+                                }
+
+                                @Override
+                                public String getBodyContentType() {
+                                    return "application/json";
+                                }
+
+                                @Override
+                                public byte[] getBody() throws AuthFailureError {
+                                    return jsonBody.toString().getBytes();
+                                }
+                            };
+
+                            RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+                            requestQueue.add(request);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e(TAG, "Failed to send location update: " + error.toString());
-                }
-            }) {
-                @Override
-                public Map<String, String> getHeaders() {
-                    Map<String, String> headers = new HashMap<>();
-                    headers.put("Authorization", "Bearer " + token);
-                    return headers;
-                }
+                    }
+                };
 
-                @Override
-                public String getBodyContentType() {
-                    return "application/json";
+                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        || ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+                } else {
+                    Log.e(TAG, "Location permission not granted");
                 }
-
-                @Override
-                public byte[] getBody() throws AuthFailureError {
-                    return jsonBody.toString().getBytes();
-                }
-            };
-
-            RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
-            requestQueue.add(request);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            }
+        });
     }
 
 
