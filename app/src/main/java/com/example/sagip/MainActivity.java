@@ -82,6 +82,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -117,16 +118,19 @@ public class MainActivity extends AppCompatActivity {
     String[] PERMISSIONS = {
             android.Manifest.permission.READ_CONTACTS,
             android.Manifest.permission.WRITE_CONTACTS,
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+           // android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
             android.Manifest.permission.VIBRATE,
             android.Manifest.permission.READ_SMS,
             android.Manifest.permission.CAMERA,
             android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.ACCESS_COARSE_LOCATION
-           // android.Manifest.permission.POST_NOTIFICATIONS,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION,
+            android.Manifest.permission.RECORD_AUDIO,
+            android.Manifest.permission.POST_NOTIFICATIONS
     };
+    String jwtToken;
     private Button startButton;
     private Button stopButton;
+
     @Override
     @SuppressLint("SetJavaScriptEnabled")
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startForegroundService();
+                startForegroundService("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0Nzg4ZGZkMjk1ZTJmMTg0ZTU1ZDIwZiIsImlhdCI6MTY4ODQwNTUxNSwiZXhwIjoxNjg5MDEwMzE1fQ.tEfEd2bmXH_BbGCsj6gqpVT3ra7B1VJRn3qMP0nJDtU");
             }
         });
 
@@ -164,16 +168,14 @@ public class MainActivity extends AppCompatActivity {
         subscribeToTopic();
         createNotificationChannel();
 
-        receivePusher();
+
 
         //sagipWebView();
-        checkLocationEnabled();
+        //checkLocationEnabled();
 
-        if(!hasPermissions(getApplicationContext(), PERMISSIONS)){
+        if (!hasPermissions(getApplicationContext(), PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         }
-
-
 
 
         sagipWebView = findViewById(R.id.sagipWebView);
@@ -185,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
 
         webSettings.setUseWideViewPort(true);
         webSettings.setAllowFileAccess(true);
-        webSettings.setJavaScriptEnabled(true);
+
         webSettings.setDomStorageEnabled(true);
         webSettings.setGeolocationEnabled(true);
         webSettings.setMediaPlaybackRequiresUserGesture(false);
@@ -193,10 +195,70 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setAllowFileAccessFromFileURLs(true);
         webSettings.setAllowUniversalAccessFromFileURLs(true);
         webSettings.setPluginState(WebSettings.PluginState.ON);
+
+
+        webSettings.setAllowContentAccess(true);
         sagipWebView.addJavascriptInterface(MainActivity.this, "AndroidInterface");
 
 
+
         sagipWebView.setWebChromeClient(new WebChromeClient() {
+            //            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+//
+//                if (mUMA != null) {
+//                    mUMA.onReceiveValue(null);
+//                }
+//                mUMA = filePathCallback;
+//
+//                String[] mimeTypes = {"image/*"};
+//                Intent intent = null;
+//
+//                if (mediaChooser.equals("camera")) {
+//
+//                    intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//                    if (intent.resolveActivity(MainActivity.this.getPackageManager()) != null) {
+//
+//                        File photoFile = null;
+//                        try {
+//                            photoFile = createImageFile();
+//                        } catch (IOException ex) {
+//                            Log.e(TAGGG, "Image file creation failed", ex);
+//                        }
+//                        if (photoFile != null) {
+//                            mCM = "file:" + photoFile.getAbsolutePath();
+//
+//                            Uri imageUri = FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID + ".provider",photoFile);
+//                            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+//                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                        } else {
+//                            intent = null;
+//                        }
+//                    } else {
+//
+//                    }
+//                } else if (mediaChooser.equals("camcorder")) {
+//
+//                    intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+//                    intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 3);
+//                    intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
+//                } else {
+//
+//                    intent = new Intent(Intent.ACTION_GET_CONTENT);
+//                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+//                    intent.setType("*/*");
+//                    intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+//                }
+//
+//                if (intent != null) {
+//                    startActivityForResult(intent, FCR);
+//
+//                    return true;
+//                } else {
+//                    return false;
+//                }
+//            }
+
+
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
 
                 if (mUMA != null) {
@@ -205,53 +267,18 @@ public class MainActivity extends AppCompatActivity {
                 mUMA = filePathCallback;
 
                 String[] mimeTypes = {"image/*"};
-                Intent intent = null;
-               // Toast.makeText(MainActivity.this, "onShowFileChooser", Toast.LENGTH_SHORT).show();
-                if (mediaChooser.equals("camera")) {
-                 //   Toast.makeText(MainActivity.this, "CAMERA", Toast.LENGTH_SHORT).show();
-                    intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    if (intent.resolveActivity(MainActivity.this.getPackageManager()) != null) {
 
-                        File photoFile = null;
-                        try {
-                            photoFile = createImageFile();
-                        } catch (IOException ex) {
-                            Log.e(TAGGG, "Image file creation failed", ex);
-                        }
-                        if (photoFile != null) {
-                            mCM = "file:" + photoFile.getAbsolutePath();
-                         //   Toast.makeText(MainActivity.this, ""+photoFile, Toast.LENGTH_SHORT).show();
-                           // Uri sharedFileUri = FileProvider.getUriForFile(MainActivity.this, "com.example.sagip.fileprovider", photoFile);
-                             //intent.putExtra(MediaStore.EXTRA_OUTPUT, sharedFileUri);
 
-                            Uri imageUri = FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID + ".provider",photoFile);
-                            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        } else {
-                            intent = null;
-                        }
-                    } else {
-
-                    }
-                } else if (mediaChooser.equals("camcorder")) {
-                  //  Toast.makeText(MainActivity.this, "CAMCORDER", Toast.LENGTH_SHORT).show();
-                    intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                    intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 3);
-                    intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
-                } else {
-                  //  Toast.makeText(MainActivity.this, "FILE", Toast.LENGTH_SHORT).show();
-                    intent = new Intent(Intent.ACTION_GET_CONTENT);
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                     intent.addCategory(Intent.CATEGORY_OPENABLE);
                     intent.setType("*/*");
                     intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-                }
 
                 if (intent != null) {
                     startActivityForResult(intent, FCR);
-                   // Toast.makeText(MainActivity.this, "T", Toast.LENGTH_SHORT).show();
+
                     return true;
                 } else {
-                  //  Toast.makeText(MainActivity.this, "F", Toast.LENGTH_SHORT).show();
                     return false;
                 }
             }
@@ -261,8 +288,11 @@ public class MainActivity extends AppCompatActivity {
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
                 callback.invoke(origin, true, false);
             }
+            @Override
+            public void onPermissionRequest(final PermissionRequest request) {
+                request.grant(request.getResources());
+            }
         });
-
 
 
         sagipWebView.setWebViewClient(new WebViewClient() {
@@ -277,7 +307,10 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return super.shouldOverrideUrlLoading(view, request);
             }
+
+
         });
+
 
 
 
@@ -352,7 +385,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(sagipWebView.canGoBack()) {
+        if (sagipWebView.canGoBack()) {
             sagipWebView.goBack();
         } else {
             super.onBackPressed();
@@ -398,7 +431,6 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
 
-
     // Handle permission request results
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -437,7 +469,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "onComplete: Failed to get the Token");
                 }
                 fcmToken = task.getResult();
-                Log.v("myTag",fcmToken);
+                Log.v("myTag", fcmToken);
                 //Toast.makeText(MainActivity.this, ""+fcmToken, Toast.LENGTH_SHORT).show();
             }
         });
@@ -453,8 +485,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "sagipNotificationChannel";
@@ -465,57 +495,6 @@ public class MainActivity extends AppCompatActivity {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
-    }
-
-
-
-
-    private void receivePusher() {
-        PusherOptions options = new PusherOptions();
-        options.setCluster(BuildConfig.PUSHER_CLUSTER);
-
-        pusher = new Pusher(BuildConfig.PUSHER_KEY, options);
-        pusher.connect(new ConnectionEventListener() {
-            @Override
-            public void onConnectionStateChange(ConnectionStateChange change) {
-                Log.i("Pusher", "State changed from " + change.getPreviousState() +
-                        " to " + change.getCurrentState());
-            }
-            @Override
-            public void onError(String message, String code, Exception e) {
-                Log.i("Pusher", "There was a problem connecting!" +
-                        "\ncode: " + code +
-                        "\nmessage: " + message +
-                        "\nException: " + e);
-            }
-        }, ConnectionState.ALL);
-
-        channel = pusher.subscribe("sagipChannel");
-        channel.bind("sagipEvent", new SubscriptionEventListener() {
-            @Override
-            public void onEvent(PusherEvent event) {
-                try {
-                    JSONObject eventData = new JSONObject(event.getData());
-
-                    String from = eventData.getString("from");
-                    String to = eventData.getString("to");
-                    String purpose = eventData.getString("purpose");
-
-                    JSONObject contentObject = eventData.getJSONObject("content");
-                    double latitude = contentObject.getDouble("latitude");
-                    double longitude = contentObject.getDouble("longitude");
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(MainActivity.this, "from: " + from, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                } catch (JSONException e) {
-                    Log.e(TAG, "Error parsing event data: " + e.toString());
-                }
-            }
-        });
     }
 
     private void loadUrl(String urlOrSearchTerm) {
@@ -539,7 +518,7 @@ public class MainActivity extends AppCompatActivity {
                 android.Manifest.permission.ACCESS_COARSE_LOCATION
         };
 
-        if(!hasPermissions(getApplicationContext(), PERMISSIONS)){
+        if (!hasPermissions(getApplicationContext(), PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         } else {
             // Location permission granted, check if location services are enabled
@@ -550,7 +529,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
 
 
     // ----------- javascript interface
@@ -609,8 +587,9 @@ public class MainActivity extends AppCompatActivity {
         mediaChooser = option;
 //        Toast.makeText(this, "hhelooo", Toast.LENGTH_SHORT).show();
     }
+
     @JavascriptInterface
-    public void routeTo(String lat,String lng) {
+    public void routeTo(String lat, String lng) {
         String latitude = lat;
         String longitude = lng;
         latitude = "14.8527";
@@ -628,23 +607,25 @@ public class MainActivity extends AppCompatActivity {
         }
         startActivity(mapIntent);
     }
+
     @JavascriptInterface
-    public void startForegroundService() {
-        intervalTimer = new Timer();
-        intervalTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-        String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0Nzg4ZGZkMjk1ZTJmMTg0ZTU1ZDIwZiIsImlhdCI6MTY4Nzc5NTgyNCwiZXhwIjoxNjg4NDAwNjI0fQ.iW8ys_m7ocxuFyGgZC68iYbYz5_kOngCB9dh7oqaI3g";
-        double latitude = 123.456;
-        double longitude = 789.012;
-        //sendLocationUpdate( token, latitude, longitude);
-                sendLocationUpdate(token);
-            }
-        }, 0, 3000);
+    public void startForegroundService(String myToken) {
+        isMicrophoneEnabled();
+        isCameraEnabled();
+//        intervalTimer = new Timer();
+//        intervalTimer.scheduleAtFixedRate(new TimerTask() {
+//            @Override
+//            public void run() {
+//                jwtToken = myToken;
+//
+//                sendLocationUpdate();
+//            }
+//        }, 0, 3000);
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         serviceIntent.putExtra("inputExtra", "Foreground Service Example");
         startService(serviceIntent);
     }
+
     @JavascriptInterface
     public void stopForegroundService() {
         intervalTimer.cancel();
@@ -652,87 +633,217 @@ public class MainActivity extends AppCompatActivity {
         stopService(serviceIntent);
     }
 
-    //public void sendLocationUpdate(final String token, final double latitude, final double longitude) {
+//    public boolean isCameraAndMicEnabled() {
+//
+//        String[] PERMISSIONS = {
+//                android.Manifest.permission.CAMERA,
+//                android.Manifest.permission.RECORD_AUDIO,
+//        };
+//
+//        if (!hasPermissions(getApplicationContext(), PERMISSIONS)) {
+//            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Toast.makeText(MainActivity.this, "Mic and CAm  denied", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//
+//            return false;
+//        } else {
+//
+//
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Toast.makeText(MainActivity.this, "Mic and CAm enabled", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//                return true;
+//
+//        }
+//    }
 
-    public void sendLocationUpdate(final String token) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
-                LocationRequest locationRequest = LocationRequest.create();
-                locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                //locationRequest.setInterval(1000); // Update location every 1 second
+    public boolean isCameraEnabled() {
 
-                LocationCallback locationCallback = new LocationCallback() {
+        String[] PERMISSIONS = {
+                android.Manifest.permission.CAMERA
+        };
+
+        if (!hasPermissions(getApplicationContext(), PERMISSIONS)) {
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+                    Toast.makeText(MainActivity.this, "CAm  denied", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+
+            return false;
+        } else {
+
+
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+                    Toast.makeText(MainActivity.this, "CAm enabled", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+            return true;
+
+        }
+    }
+
+    public boolean isMicrophoneEnabled() {
+
+        String[] PERMISSIONS = {
+                android.Manifest.permission.RECORD_AUDIO
+        };
+
+        if (!hasPermissions(getApplicationContext(), PERMISSIONS)) {
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+                    Toast.makeText(MainActivity.this, "Mic  denied", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+
+            return false;
+        } else {
+
+
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+                    Toast.makeText(MainActivity.this, "Mic enabled", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+            return true;
+
+        }
+    }
+
+    public boolean isLocationEnabled() {
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        String[] PERMISSIONS = {
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION
+        };
+
+        if (!hasPermissions(getApplicationContext(), PERMISSIONS)) {
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+                runOnUiThread(new Runnable() {
                     @Override
-                    public void onLocationResult(LocationResult locationResult) {
-                        Location location = locationResult.getLastLocation();
-                        double latitude = location.getLatitude();
-                        double longitude = location.getLongitude();
-                        Log.d(TAG, "latitude " + latitude);
-                        Log.d(TAG, "longitude " + longitude);
-
-                        try {
-                            // Create JSON payload and send location update to the server
-                            JSONObject jsonBody = new JSONObject();
-                            jsonBody.put("to", "64788dfd295e2f184e55d20f");
-                            jsonBody.put("channel", "location");
-
-                            JSONObject contentJson = new JSONObject();
-                            contentJson.put("latitude", latitude);
-                            contentJson.put("longitude", longitude);
-
-                            jsonBody.put("content", contentJson);
-
-                            String url = "https://sagip.onrender.com/api/pusher";
-
-                            StringRequest request = new StringRequest(Request.Method.PUT, url,
-                                    new Response.Listener<String>() {
-                                        @Override
-                                        public void onResponse(String response) {
-                                            Log.d(TAG, "Location update sent successfully");
-                                        }
-                                    }, new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    Log.e(TAG, "Failed to send location update: " + error.toString());
-                                }
-                            }) {
-                                @Override
-                                public Map<String, String> getHeaders() {
-                                    Map<String, String> headers = new HashMap<>();
-                                    headers.put("Authorization", "Bearer " + token);
-                                    return headers;
-                                }
-
-                                @Override
-                                public String getBodyContentType() {
-                                    return "application/json";
-                                }
-
-                                @Override
-                                public byte[] getBody() throws AuthFailureError {
-                                    return jsonBody.toString().getBytes();
-                                }
-                            };
-
-                            RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
-                            requestQueue.add(request);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "Location permission is denied", Toast.LENGTH_SHORT).show();
                     }
-                };
-
-                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                        || ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                    fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
-                } else {
-                    Log.e(TAG, "Location permission not granted");
-                }
+                });
+            intervalTimer.cancel();
+            return false;
+        } else {
+            if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "Location services are not enabled", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                intervalTimer.cancel();
+                return false;
+            } else {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "Location services are enabled", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                return true;
             }
-        });
+        }
+    }
+
+    public void sendLocationUpdate() {
+        if (isLocationEnabled()) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
+                    LocationRequest locationRequest = LocationRequest.create();
+                    locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                    //locationRequest.setInterval(1000); // Update location every 1 second
+
+                    LocationCallback locationCallback = new LocationCallback() {
+                        @Override
+                        public void onLocationResult(LocationResult locationResult) {
+                            Location location = locationResult.getLastLocation();
+                            double latitude = location.getLatitude();
+                            double longitude = location.getLongitude();
+                            Log.d(TAG, "latitude " + latitude);
+                            Log.d(TAG, "longitude " + longitude);
+
+                            try {
+                                // Create JSON payload and send location update to the server
+                                JSONObject jsonBody = new JSONObject();
+                                jsonBody.put("channel", "64788dfd295e2f184e55d20f");
+                                jsonBody.put("event", "location");
+
+                                JSONObject contentJson = new JSONObject();
+                                contentJson.put("latitude", latitude);
+                                contentJson.put("longitude", longitude);
+
+                                jsonBody.put("content", contentJson);
+
+                                String url = "https://sagip.onrender.com/api/pusher";
+
+                                StringRequest request = new StringRequest(Request.Method.PUT, url,
+                                        new Response.Listener<String>() {
+                                            @Override
+                                            public void onResponse(String response) {
+                                                Log.d(TAG, "Location update sent successfully");
+                                            }
+                                        }, new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        Log.e(TAG, "Failed to send location update: " + error.toString());
+                                    }
+                                }) {
+                                    @Override
+                                    public Map<String, String> getHeaders() {
+                                        Map<String, String> headers = new HashMap<>();
+                                        headers.put("Authorization", "Bearer " + jwtToken);
+                                        return headers;
+                                    }
+
+                                    @Override
+                                    public String getBodyContentType() {
+                                        return "application/json";
+                                    }
+
+                                    @Override
+                                    public byte[] getBody() throws AuthFailureError {
+                                        return jsonBody.toString().getBytes();
+                                    }
+                                };
+
+                                RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+                                requestQueue.add(request);
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+
+                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                            || ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+                    } else {
+                        Log.e(TAG, "Location permission not granted");
+                    }
+                }
+            });
+       }
     }
 
 
