@@ -4,8 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.core.location.LocationManagerCompat;
 
 import android.Manifest;
@@ -15,24 +13,25 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.StrictMode;
 import android.os.Vibrator;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.webkit.ConsoleMessage;
 import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
 import android.webkit.PermissionRequest;
@@ -48,14 +47,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkResponse;
-import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.HttpHeaderParser;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -67,22 +62,14 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.pusher.client.Pusher;
-import com.pusher.client.PusherOptions;
 import com.pusher.client.channel.Channel;
-import com.pusher.client.channel.PusherEvent;
-import com.pusher.client.channel.SubscriptionEventListener;
-import com.pusher.client.connection.ConnectionEventListener;
-import com.pusher.client.connection.ConnectionState;
-import com.pusher.client.connection.ConnectionStateChange;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -90,7 +77,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
-
+    private NetworkReceiver networkStateChangeReceiver;
+    private MediaPlayer mediaPlayer;
+    private boolean isPlaying = false;
+    private ConnectivityManager connectivityManager;
+    private AudioManager audioManager;
 
     private WebView sagipWebView;
     private EditText searchBar;
@@ -131,13 +122,15 @@ public class MainActivity extends AppCompatActivity {
     private Button startButton;
     private Button stopButton;
 
+
+
     @Override
     @SuppressLint("SetJavaScriptEnabled")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        networkStateChangeReceiver = new NetworkReceiver();
         startButton = findViewById(R.id.start_button);
         stopButton = findViewById(R.id.stop_button);
 
@@ -154,6 +147,34 @@ public class MainActivity extends AppCompatActivity {
                 stopForegroundService();
             }
         });
+
+
+        //Button playButton = findViewById(R.id.btnPlay);
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+
+        connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        isWifiEnabled();
+
+//        playButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (!isPlaying) {
+//                    playSound();
+//                    maximizeVolume();
+//                    Toast.makeText(MainActivity.this, "Alarm play", Toast.LENGTH_SHORT).show();
+//                    playButton.setText("Stop");
+//                } else {
+//                    stopSound();
+//                    Toast.makeText(MainActivity.this, "Alarm stop", Toast.LENGTH_SHORT).show();
+//                    playButton.setText("Play");
+//                }
+//            }
+//        });
+
+
+
+
+
 
         // removes action bar
         ActionBar actionBar = getSupportActionBar();
@@ -430,7 +451,20 @@ public class MainActivity extends AppCompatActivity {
 //
 //    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Register the BroadcastReceiver to listen for network state changes
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkStateChangeReceiver, intentFilter);
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Unregister the BroadcastReceiver when the activity is paused
+        unregisterReceiver(networkStateChangeReceiver);
+    }
     // Handle permission request results
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -612,18 +646,19 @@ public class MainActivity extends AppCompatActivity {
     public void startForegroundService(String myToken) {
         isMicrophoneEnabled();
         isCameraEnabled();
-//        intervalTimer = new Timer();
-//        intervalTimer.scheduleAtFixedRate(new TimerTask() {
-//            @Override
-//            public void run() {
-//                jwtToken = myToken;
-//
-//                sendLocationUpdate();
-//            }
-//        }, 0, 3000);
+        intervalTimer = new Timer();
+        intervalTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                jwtToken = myToken;
+
+                sendLocationUpdate();
+            }
+        }, 0, 3000);
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         serviceIntent.putExtra("inputExtra", "Foreground Service Example");
         startService(serviceIntent);
+
     }
 
     @JavascriptInterface
@@ -846,6 +881,39 @@ public class MainActivity extends AppCompatActivity {
        }
     }
 
+    private void isWifiEnabled() {
+        NetworkInfo wifiNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        boolean isWifiOn = wifiNetworkInfo.isConnected();
+
+        if (isWifiOn) {
+            Toast.makeText(this, "Wi-Fi is ON", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Wi-Fi is OFF", Toast.LENGTH_SHORT).show();
+        }
+    }
 
 
+
+    public void maximizeVolume() {
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
+    }
+
+    @JavascriptInterface
+    public void playSOS() {
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
+        mediaPlayer = MediaPlayer.create(this, R.raw.sos);
+        mediaPlayer.setLooping(true);
+        mediaPlayer.start();
+        isPlaying = true;
+    }
+
+    @JavascriptInterface
+    public void stopSOS() {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+        isPlaying = false;
+    }
 }
