@@ -454,7 +454,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Register the BroadcastReceiver to listen for network state changes
+
         IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(networkStateChangeReceiver, intentFilter);
     }
@@ -462,7 +462,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        // Unregister the BroadcastReceiver when the activity is paused
+
         unregisterReceiver(networkStateChangeReceiver);
     }
     // Handle permission request results
@@ -882,13 +882,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void isWifiEnabled() {
-        NetworkInfo wifiNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        boolean isWifiOn = wifiNetworkInfo.isConnected();
+//        NetworkInfo wifiNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+//        boolean isWifiOn = wifiNetworkInfo.isConnected();
+//
+//        if (isWifiOn) {
+//            Toast.makeText(this, "Wi-Fi is ON", Toast.LENGTH_SHORT).show();
+//        } else {
+//            Toast.makeText(this, "Wi-Fi is OFF", Toast.LENGTH_SHORT).show();
+//        }
 
-        if (isWifiOn) {
-            Toast.makeText(this, "Wi-Fi is ON", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Wi-Fi is OFF", Toast.LENGTH_SHORT).show();
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+
+
+            Toast.makeText(this, "Internet is available!", Toast.LENGTH_SHORT).show();
+        }
+
+        if (networkInfo == null || !networkInfo.isConnected()) {
+
+            Toast.makeText(this, "No internet connection!", Toast.LENGTH_SHORT).show();
         }
     }
 
