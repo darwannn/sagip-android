@@ -13,29 +13,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class OnboardingActivtiy extends AppCompatActivity {
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_onboarding);
-
-// removes action bar
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.hide();
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                Intent mainIntent = new Intent(OnboardingActivtiy.this, MainActivity.class);
-                startActivity(mainIntent);
-
-                overridePendingTransition(0, 0);
-
-                finish();
-            }
+        new Handler().postDelayed(() -> {
+            Intent intent = new Intent(OnboardingActivtiy.this, MainActivity.class);
+            startActivity(intent);
+            overridePendingTransition(0, 0);
+            finish();
         }, 2000);
-
     }
 }

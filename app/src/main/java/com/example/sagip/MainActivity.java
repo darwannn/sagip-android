@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
     private Channel channel;
     private String fcmToken;
 
-
+    public static boolean isMainActivityActive = false;
     private String mediaChooser;
     private static final String TAGGG = MainActivity.class.getSimpleName();
     public ValueCallback<Uri> mUploadMessage;
@@ -441,7 +441,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
+        isMainActivityActive = true;
         IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(networkStateChangeReceiver, intentFilter);
     }
@@ -449,7 +449,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-
+        isMainActivityActive = false;
         unregisterReceiver(networkStateChangeReceiver);
     }
     // Handle permission request results

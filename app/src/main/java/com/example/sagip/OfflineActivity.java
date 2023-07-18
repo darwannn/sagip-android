@@ -13,7 +13,7 @@ import android.widget.Button;
 public class OfflineActivity extends AppCompatActivity {
     private NetworkReceiver networkStateChangeReceiver;
     Button button1, button2, button3, button4;
-
+    public static boolean isOfflineActivityActive = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +69,7 @@ public class OfflineActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        isOfflineActivityActive = true;
         IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(networkStateChangeReceiver, intentFilter);
     }
@@ -76,6 +77,7 @@ public class OfflineActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        isOfflineActivityActive = false;
         unregisterReceiver(networkStateChangeReceiver);
     }
 }
