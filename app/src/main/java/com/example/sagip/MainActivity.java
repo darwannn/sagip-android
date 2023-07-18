@@ -437,19 +437,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        sagipWebView.onPause();
-//
-//    }
-//
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        sagipWebView.onResume();
-//
-//    }
 
     @Override
     protected void onResume() {

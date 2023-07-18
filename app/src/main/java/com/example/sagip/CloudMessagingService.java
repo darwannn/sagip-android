@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.os.Build;
 import android.provider.Settings;
@@ -44,7 +45,7 @@ public class CloudMessagingService extends FirebaseMessagingService {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_background)
+
                 .setContentTitle(title)
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -54,11 +55,19 @@ public class CloudMessagingService extends FirebaseMessagingService {
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
 
+
+        if (isDarkModeEnabled()) {
+            builder.setSmallIcon(R.drawable.icon_light);
+        } else {
+            builder.setSmallIcon(R.drawable.icon_dark);
+        }
+
         // notificationId is a unique int for each notification that you must define
         notificationManager.notify(1, builder.build());
     }
 
-    public static void playAudio(Context context) {
-
+    private boolean isDarkModeEnabled() {
+        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
     }
 }

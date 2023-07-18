@@ -3,8 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Darwin/AndroidStudioProjects/sagip-android/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1995" />
         <entry key="..\:/Users/Darwin/AndroidStudioProjects/sagip-android/app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="..\:/Users/Darwin/AndroidStudioProjects/sagip-android/app/src/main/res/layout/activity_offline.xml" value="0.15885416666666666" />
+        <entry key="..\:/Users/Darwin/AndroidStudioProjects/sagip-android/app/src/main/res/layout/activity_onboarding.xml" value="0.25" />
         <entry key="..\:/Users/Darwin/AndroidStudioProjects/sagip-android/app/src/main/res/layout/activity_onboarding_activtiy.xml" value="0.15885416666666666" />
         <entry key="..\:/Users/Darwin/AndroidStudioProjects/sagip-android/app/src/main/res/xml/file_paths.xml" value="0.1640625" />
         <entry key="..\:/Users/Darwin/AndroidStudioProjects/sagip/app/src/main/res/layout/activity_main.xml" value="0.1" />

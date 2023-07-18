@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
@@ -21,6 +22,7 @@ public class ForegroundService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
     }
 
     @Override
@@ -67,12 +69,25 @@ public class ForegroundService extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Foreground Service")
                 .setContentText("Running...")
-                .setSmallIcon(R.drawable.ic_launcher_background)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setContentIntent(pendingIntent) // Set the PendingIntent
-                .setOnlyAlertOnce(true); // Set the flag to hide the notification count
-        builder.setNumber(0);
+                .setContentIntent(pendingIntent)
+                .setOnlyAlertOnce(true)
+                .setNumber(0);
+
+        if (isDarkModeEnabled()) {
+            builder.setSmallIcon(R.drawable.icon_light);
+        } else {
+            builder.setSmallIcon(R.drawable.icon_dark);
+        }
+
         return builder.build();
 
+
     }
+
+    private boolean isDarkModeEnabled() {
+        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
+    }
+
 }
