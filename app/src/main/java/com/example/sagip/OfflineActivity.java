@@ -80,4 +80,5 @@ public class OfflineActivity extends AppCompatActivity {
         isOfflineActivityActive = false;
         unregisterReceiver(networkStateChangeReceiver);
     }
+
 }

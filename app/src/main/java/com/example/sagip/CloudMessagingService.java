@@ -37,7 +37,6 @@ public class CloudMessagingService extends FirebaseMessagingService {
 
     }
 
-
     private void showNotification(String title,String message){
       //  Toast.makeText(this, "3", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, MainActivity.class);
@@ -49,7 +48,6 @@ public class CloudMessagingService extends FirebaseMessagingService {
                 .setContentTitle(title)
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                // Set the intent that will fire when the user taps the notification
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
 
@@ -62,7 +60,6 @@ public class CloudMessagingService extends FirebaseMessagingService {
             builder.setSmallIcon(R.drawable.icon_dark);
         }
 
-        // notificationId is a unique int for each notification that you must define
         notificationManager.notify(1, builder.build());
     }
 

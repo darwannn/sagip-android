@@ -137,14 +137,14 @@ public class MainActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startForegroundService("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0Nzg4ZGZkMjk1ZTJmMTg0ZTU1ZDIwZiIsImlhdCI6MTY4ODQwNTUxNSwiZXhwIjoxNjg5MDEwMzE1fQ.tEfEd2bmXH_BbGCsj6gqpVT3ra7B1VJRn3qMP0nJDtU");
+                startSharingLocation("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0Nzg4ZGZkMjk1ZTJmMTg0ZTU1ZDIwZiIsImlhdCI6MTY4ODQwNTUxNSwiZXhwIjoxNjg5MDEwMzE1fQ.tEfEd2bmXH_BbGCsj6gqpVT3ra7B1VJRn3qMP0nJDtU");
             }
         });
 
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                stopForegroundService();
+                stopSharingLocation();
             }
         });
 
@@ -452,6 +452,8 @@ public class MainActivity extends AppCompatActivity {
         isMainActivityActive = false;
         unregisterReceiver(networkStateChangeReceiver);
     }
+
+
     // Handle permission request results
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -630,9 +632,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @JavascriptInterface
-    public void startForegroundService(String myToken) {
-        isMicrophoneEnabled();
-        isCameraEnabled();
+    public void startSharingLocation(String myToken) {
+        //isMicrophoneEnabled();
+       // isCameraEnabled();
         intervalTimer = new Timer();
         intervalTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -649,7 +651,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @JavascriptInterface
-    public void stopForegroundService() {
+    public void stopSharingLocation() {
         intervalTimer.cancel();
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         stopService(serviceIntent);
