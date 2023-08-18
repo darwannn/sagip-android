@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.location.LocationManagerCompat;
 
 import android.Manifest;
@@ -28,6 +29,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Vibrator;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -224,63 +226,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         sagipWebView.setWebChromeClient(new WebChromeClient() {
-            //            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
-//
-//                if (mUMA != null) {
-//                    mUMA.onReceiveValue(null);
-//                }
-//                mUMA = filePathCallback;
-//
-//                String[] mimeTypes = {"image/*"};
-//                Intent intent = null;
-//
-//                if (mediaChooser.equals("camera")) {
-//
-//                    intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//                    if (intent.resolveActivity(MainActivity.this.getPackageManager()) != null) {
-//
-//                        File photoFile = null;
-//                        try {
-//                            photoFile = createImageFile();
-//                        } catch (IOException ex) {
-//                            Log.e(TAGGG, "Image file creation failed", ex);
-//                        }
-//                        if (photoFile != null) {
-//                            mCM = "file:" + photoFile.getAbsolutePath();
-//
-//                            Uri imageUri = FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID + ".provider",photoFile);
-//                            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-//                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//                        } else {
-//                            intent = null;
-//                        }
-//                    } else {
-//
-//                    }
-//                } else if (mediaChooser.equals("camcorder")) {
-//
-//                    intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-//                    intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 3);
-//                    intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
-//                } else {
-//
-//                    intent = new Intent(Intent.ACTION_GET_CONTENT);
-//                    intent.addCategory(Intent.CATEGORY_OPENABLE);
-//                    intent.setType("*/*");
-//                    intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-//                }
-//
-//                if (intent != null) {
-//                    startActivityForResult(intent, FCR);
-//
-//                    return true;
-//                } else {
-//                    return false;
-//                }
-//            }
-
-
-            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+                        public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
 
                 if (mUMA != null) {
                     mUMA.onReceiveValue(null);
@@ -288,12 +234,43 @@ public class MainActivity extends AppCompatActivity {
                 mUMA = filePathCallback;
 
                 String[] mimeTypes = {"image/*"};
+                Intent intent = null;
 
+                if (mediaChooser.equals("camera")) {
 
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    if (intent.resolveActivity(MainActivity.this.getPackageManager()) != null) {
+
+                        File photoFile = null;
+                        try {
+                            photoFile = createImageFile();
+                        } catch (IOException ex) {
+                            Log.e(TAGGG, "Image file creation failed", ex);
+                        }
+                        if (photoFile != null) {
+                            mCM = "file:" + photoFile.getAbsolutePath();
+
+                            Uri imageUri = FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID + ".provider",photoFile);
+                            intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        } else {
+                            intent = null;
+                        }
+                    } else {
+
+                    }
+                } else if (mediaChooser.equals("camcorder")) {
+
+                    intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                    intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 3);
+                    intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
+                } else {
+
+                    intent = new Intent(Intent.ACTION_GET_CONTENT);
                     intent.addCategory(Intent.CATEGORY_OPENABLE);
                     intent.setType("*/*");
                     intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+                }
 
                 if (intent != null) {
                     startActivityForResult(intent, FCR);
@@ -303,6 +280,31 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 }
             }
+
+
+//            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+//
+//                if (mUMA != null) {
+//                    mUMA.onReceiveValue(null);
+//                }
+//                mUMA = filePathCallback;
+//
+//                String[] mimeTypes = {"image/*"};
+//
+//
+//                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+//                    intent.setType("*/*");
+//                    intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+//
+//                if (intent != null) {
+//                    startActivityForResult(intent, FCR);
+//
+//                    return true;
+//                } else {
+//                    return false;
+//                }
+//            }
 
 
             @Override
