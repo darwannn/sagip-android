@@ -6,27 +6,110 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".OfflineActivity">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:text="Oops! It seems like you're offline."
+        android:textSize="15sp"
+        android:gravity="center"
+        android:drawableTop="@drawable/icon_offline"
+        android:background="@drawable/warning_background"
+        android:paddingTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:fontFamily="@font/poppins"
+        android:textColor="#FFFFFF"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="For the meantime, kindly refer to the following emergency hotlines for any necessary assistance."
+        android:textSize="17sp"
+        android:justificationMode="inter_word"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="20dp"
+        android:fontFamily="@font/poppins"
+        android:textColor="#293B95"/>
+
     <Button
         android:id="@+id/button1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Call Number 1" />
+        android:layout_height="60dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="18sp"
+        android:drawablePadding="15dp"
+        android:drawableStart="@drawable/icon_malolos"
+        android:drawableEnd="@drawable/call_white_icon"
+        android:fontFamily="@font/poppins"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        android:background="@drawable/gradient_background"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
+        android:gravity="left|center"
+        android:text="Malolos Rescue"
+        />
 
     <Button
         android:id="@+id/button2"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Call Number 2" />
+        android:layout_height="60dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="10dp"
+        android:textColor="#414042"
+        android:textAllCaps="false"
+        android:drawablePadding="15dp"
+        android:drawableStart="@drawable/icon_firetruck"
+        android:drawableEnd="@drawable/call_red_icon"
+        android:fontFamily="@font/poppins"
+        android:textSize="18sp"
+        android:background="@drawable/gray_background"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
+        android:gravity="left|center"
+        android:text="City Fire Station" />
 
     <Button
         android:id="@+id/button3"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Call Number 3" />
+        android:layout_height="60dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="10dp"
+        android:textColor="#414042"
+        android:textAllCaps="false"
+        android:drawablePadding="15dp"
+        android:drawableStart="@drawable/icon_policecar"
+        android:drawableEnd="@drawable/call_red_icon"
+        android:fontFamily="@font/poppins"
+        android:textSize="18sp"
+        android:background="@drawable/gray_background"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
+        android:gravity="left|center"
+        android:text="City Police Station" />
 
     <Button
         android:id="@+id/button4"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Call Number 4" />
+        android:layout_height="60dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="10dp"
+        android:textColor="#414042"
+        android:textAllCaps="false"
+        android:drawablePadding="15dp"
+        android:drawableStart="@drawable/icon_redcross"
+        android:drawableEnd="@drawable/call_red_icon"
+        android:fontFamily="@font/poppins"
+        android:textSize="18sp"
+        android:background="@drawable/gray_background"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
+        android:gravity="left|center"
+        android:text="Philippine Red Cross" />
 </LinearLayout>
