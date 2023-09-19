@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             android.Manifest.permission.RECORD_AUDIO,
             android.Manifest.permission.POST_NOTIFICATIONS
     };
-    String jwtToken;
+    String jwtToken,residentUserId;
     private Button startButton;
     private Button stopButton;
 
@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startSharingLocation("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0Nzg4ZGZkMjk1ZTJmMTg0ZTU1ZDIwZiIsImlhdCI6MTY4ODQwNTUxNSwiZXhwIjoxNjg5MDEwMzE1fQ.tEfEd2bmXH_BbGCsj6gqpVT3ra7B1VJRn3qMP0nJDtU");
+                startSharingLocation("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0YXJnZXQiOiJsb2dpbiIsImlkIjoiNjQ3ODhkZmQyOTVlMmYxODRlNTVkMjBmIiwidXNlclR5cGUiOiJyZXNwb25kZXIiLCJzdGF0dXMiOiJ2ZXJpZmllZCIsImlkZW50aWZpZXIiOiIiLCJpYXQiOjE2OTUxMjU2NTMsImV4cCI6MTY5NTczMDQ1M30.sKDakxziMbSR7ckgDjhuzpRZyL9GjT3G4mQqAMbEQqU","64788dfd295e2f184e55d20f");
             }
         });
 
@@ -608,9 +608,15 @@ public class MainActivity extends AppCompatActivity {
 
     @JavascriptInterface
     public void setMediaChooser(String option) {
-        Toast.makeText(this, "set to " + option, Toast.LENGTH_SHORT).show();
-        mediaChooser = option;
+        try {
+            Toast.makeText(this, "set to " + option, Toast.LENGTH_SHORT).show();
+            mediaChooser = option;
 //        Toast.makeText(this, "hhelooo", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the exception and its stack trace
+        }
+
+
     }
 
     @JavascriptInterface
@@ -634,7 +640,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @JavascriptInterface
-    public void startSharingLocation(String myToken) {
+    public void startSharingLocation(String myToken, String userId) {
         //isMicrophoneEnabled();
        // isCameraEnabled();
         intervalTimer = new Timer();
@@ -642,21 +648,26 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 jwtToken = myToken;
-
+                residentUserId = userId;
                 sendLocationUpdate();
             }
         }, 0, 3000);
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         serviceIntent.putExtra("inputExtra", "Foreground Service Example");
         startService(serviceIntent);
-
     }
 
     @JavascriptInterface
     public void stopSharingLocation() {
-        intervalTimer.cancel();
+
+
+
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         stopService(serviceIntent);
+        if (intervalTimer != null) {
+            intervalTimer.cancel();
+            intervalTimer = null;
+        }
     }
 
 //    public boolean isCameraAndMicEnabled() {
@@ -811,7 +822,8 @@ public class MainActivity extends AppCompatActivity {
                             try {
                                 // Create JSON payload and send location update to the server
                                 JSONObject jsonBody = new JSONObject();
-                                jsonBody.put("channel", "64788dfd295e2f184e55d20f");
+                                jsonBody.put("receiver", "64788dfd295e2f184e55d20f");
+                               // jsonBody.put("receiver", residentUserId);
                                 jsonBody.put("event", "location");
 
                                 JSONObject contentJson = new JSONObject();
@@ -820,7 +832,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 jsonBody.put("content", contentJson);
 
-                                String url = "https://sagip.onrender.com/api/pusher";
+                                String url = "https://sagip.onrender.com/api/web-socket";
 
                                 StringRequest request = new StringRequest(Request.Method.PUT, url,
                                         new Response.Listener<String>() {
@@ -919,5 +931,10 @@ public class MainActivity extends AppCompatActivity {
             mediaPlayer = null;
         }
         isPlaying = false;
+    }
+
+    @JavascriptInterface
+    public void showToast(String toastMessage) {
+        Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show();
     }
 }
