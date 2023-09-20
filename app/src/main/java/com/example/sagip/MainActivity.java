@@ -643,7 +643,7 @@ public class MainActivity extends AppCompatActivity {
     public void startSharingLocation(String myToken, String userId) {
         //isMicrophoneEnabled();
        // isCameraEnabled();
-        intervalTimer = new Timer();
+        Timer intervalTimer = TimerManager.getIntervalTimer();
         intervalTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -664,10 +664,7 @@ public class MainActivity extends AppCompatActivity {
 
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         stopService(serviceIntent);
-        if (intervalTimer != null) {
-            intervalTimer.cancel();
-            intervalTimer = null;
-        }
+        TimerManager.cancelIntervalTimer();
     }
 
 //    public boolean isCameraAndMicEnabled() {

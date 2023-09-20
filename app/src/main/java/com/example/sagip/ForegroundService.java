@@ -13,6 +13,8 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import java.util.Timer;
+
 public class ForegroundService extends Service {
 
     private static final int NOTIFICATION_ID = 1;
@@ -29,6 +31,7 @@ public class ForegroundService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, buildNotification());
+        Timer intervalTimer = TimerManager.getIntervalTimer();
         // Perform your service logic here
         return START_STICKY;
     }
