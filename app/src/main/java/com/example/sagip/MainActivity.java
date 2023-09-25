@@ -715,13 +715,13 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
 
-                Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
 
-                jwtToken = myToken;
-                residentUserId = userId;
+            jwtToken = myToken;
+            residentUserId = userId;
 
-                // Initialize FusedLocationProviderClient and LocationCallback
-                fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+            // Initialize FusedLocationProviderClient and LocationCallback
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 //        locationCallback = new LocationCallback() {
 //            @Override
 //            public void onLocationResult(LocationResult locationResult) {
@@ -729,11 +729,11 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        };
 
-                sendLocationUpdate();
+            sendLocationUpdate();
 
-                Intent serviceIntent = new Intent(this, ForegroundService.class);
-                serviceIntent.putExtra("inputExtra", "Foreground Service Example");
-                startService(serviceIntent);
+            Intent serviceIntent = new Intent(this, ForegroundService.class);
+            serviceIntent.putExtra("inputExtra", "Foreground Service Example");
+            startService(serviceIntent);
 
         }
     }
