@@ -88,6 +88,7 @@ import io.socket.client.Socket;
 
 public class MainActivity extends AppCompatActivity {
     public static com.example.sagip.TimerManager TimerManager;
+
     private NetworkReceiver networkStateChangeReceiver;
     private MediaPlayer mediaPlayer;
     private boolean isPlaying = false;
@@ -124,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
             android.Manifest.permission.CAMERA,
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION,
+            android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
             android.Manifest.permission.RECORD_AUDIO,
             android.Manifest.permission.POST_NOTIFICATIONS
     };
@@ -694,6 +696,8 @@ public class MainActivity extends AppCompatActivity {
 
     @JavascriptInterface
     public void startSharingLocation(String myToken, String userId) {
+
+        
         Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
 
         jwtToken = myToken;
