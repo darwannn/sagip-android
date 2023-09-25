@@ -74,6 +74,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -81,6 +82,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
 
 public class MainActivity extends AppCompatActivity {
     public static com.example.sagip.TimerManager TimerManager;
@@ -126,13 +130,22 @@ public class MainActivity extends AppCompatActivity {
     String jwtToken,residentUserId;
     private Button startButton;
     private Button stopButton;
+    private FusedLocationProviderClient fusedLocationClient;
+    private LocationCallback locationCallback;
+    private Socket mSocket;
+    {
+        try {
+            mSocket = IO.socket("https://sagip.onrender.com");
+        } catch (URISyntaxException e) {}
+    }
+
 
     @Override
     @SuppressLint("SetJavaScriptEnabled")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        mSocket.connect();
         networkStateChangeReceiver = new NetworkReceiver();
         startButton = findViewById(R.id.start_button);
         stopButton = findViewById(R.id.stop_button);
@@ -164,7 +177,8 @@ public class MainActivity extends AppCompatActivity {
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                stopSharingLocation();
+               stopSharingLocation();
+
             }
         });
 
@@ -335,7 +349,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         sagipWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -348,7 +361,11 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return super.shouldOverrideUrlLoading(view, request);
             }
-
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                view.clearCache(true);
+            }
 
         });
 
@@ -528,7 +545,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseMessaging.getInstance().subscribeToTopic("sagip").addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                Toast.makeText(MainActivity.this, "subascriba", Toast.LENGTH_SHORT).show();
+               // Toast.makeText(MainActivity.this, "subascriba", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -588,7 +605,7 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(MainActivity.this, "Identifier: " + identifier, Toast.LENGTH_SHORT).show();
+             //   Toast.makeText(MainActivity.this, "Identifier: " + identifier, Toast.LENGTH_SHORT).show();
                 RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
                 String url = "https://sagip.onrender.com/account/fcm";
 
@@ -624,7 +641,7 @@ public class MainActivity extends AppCompatActivity {
     @JavascriptInterface
     public void vibrateOnHold() {
         Vibrator vibrator = (Vibrator) getSystemService(MainActivity.this.VIBRATOR_SERVICE);
-        Toast.makeText(this, "showing", Toast.LENGTH_SHORT).show();
+      //  Toast.makeText(this, "showing", Toast.LENGTH_SHORT).show();
         if (vibrator.hasVibrator()) {
             vibrator.vibrate(500);
         }
@@ -632,7 +649,7 @@ public class MainActivity extends AppCompatActivity {
 
     @JavascriptInterface
     public void setMediaChooser(String option) {
-        Toast.makeText(this, "set to " + option, Toast.LENGTH_SHORT).show();
+      //  Toast.makeText(this, "set to " + option, Toast.LENGTH_SHORT).show();
         mediaChooser = option;
 //        Toast.makeText(this, "hello", Toast.LENGTH_SHORT).show();
     }
@@ -677,29 +694,36 @@ public class MainActivity extends AppCompatActivity {
 
     @JavascriptInterface
     public void startSharingLocation(String myToken, String userId) {
-        //isMicrophoneEnabled();
-        // isCameraEnabled();
-        Timer intervalTimer = TimerManager.getIntervalTimer();
-        intervalTimer.scheduleAtFixedRate(new TimerTask() {
+        Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
+
+        jwtToken = myToken;
+        residentUserId = userId;
+
+        // Initialize FusedLocationProviderClient and LocationCallback
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        locationCallback = new LocationCallback() {
             @Override
-            public void run() {
-                jwtToken = myToken;
-                residentUserId = userId;
-                sendLocationUpdate();
+            public void onLocationResult(LocationResult locationResult) {
+                // Your existing location update code
+                // ...
             }
-        }, 0, 3000);
+        };
+
+        sendLocationUpdate();
+
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         serviceIntent.putExtra("inputExtra", "Foreground Service Example");
         startService(serviceIntent);
     }
 
-    @JavascriptInterface
     public void stopSharingLocation() {
-
+        Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         stopService(serviceIntent);
-        TimerManager.cancelIntervalTimer();
+
+        fusedLocationClient.removeLocationUpdates(locationCallback);
     }
+
 
 
 
@@ -745,7 +769,7 @@ public class MainActivity extends AppCompatActivity {
 //            runOnUiThread(new Runnable() {
 //                @Override
 //                public void run() {
-                    Toast.makeText(MainActivity.this, "CAm  denied", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(MainActivity.this, "CAm  denied", Toast.LENGTH_SHORT).show();
 //                }
 //            });
 
@@ -756,7 +780,7 @@ public class MainActivity extends AppCompatActivity {
 //            runOnUiThread(new Runnable() {
 //                @Override
 //                public void run() {
-                    Toast.makeText(MainActivity.this, "CAm enabled", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(MainActivity.this, "CAm enabled", Toast.LENGTH_SHORT).show();
 //                }
 //            });
             return true;
@@ -775,7 +799,7 @@ public class MainActivity extends AppCompatActivity {
 //            runOnUiThread(new Runnable() {
 //                @Override
 //                public void run() {
-                    Toast.makeText(MainActivity.this, "Mic  denied", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(MainActivity.this, "Mic  denied", Toast.LENGTH_SHORT).show();
 //                }
 //            });
 
@@ -786,7 +810,7 @@ public class MainActivity extends AppCompatActivity {
 //            runOnUiThread(new Runnable() {
 //                @Override
 //                public void run() {
-                    Toast.makeText(MainActivity.this, "Mic enabled", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(MainActivity.this, "Mic enabled", Toast.LENGTH_SHORT).show();
 //                }
 //            });
             return true;
@@ -825,7 +849,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(MainActivity.this, "Location services are enabled", Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(MainActivity.this, "Location services are enabled", Toast.LENGTH_SHORT).show();
                     }
                 });
                 return true;
@@ -835,15 +859,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void sendLocationUpdate() {
         if (isLocationEnabled()) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
+
+
+
                     LocationRequest locationRequest = LocationRequest.create();
                     locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                    locationRequest.setInterval(1000); // Update location every 1 second
+                    locationRequest.setInterval(10000); // Update location every 10 seconds
 
-                    LocationCallback locationCallback = new LocationCallback() {
+
+                    locationCallback = new LocationCallback() {
                         @Override
                         public void onLocationResult(LocationResult locationResult) {
                             Location location = locationResult.getLastLocation();
@@ -855,8 +879,7 @@ public class MainActivity extends AppCompatActivity {
                             try {
                                 // Create JSON payload and send location update to the server
                                 JSONObject jsonBody = new JSONObject();
-                                jsonBody.put("receiver", "64788dfd295e2f184e55d20f");
-                                // jsonBody.put("receiver", residentUserId);
+                                jsonBody.put("receiver", residentUserId);
                                 jsonBody.put("event", "location");
 
                                 JSONObject contentJson = new JSONObject();
@@ -864,42 +887,12 @@ public class MainActivity extends AppCompatActivity {
                                 contentJson.put("longitude", longitude);
 
                                 jsonBody.put("content", contentJson);
+                                mSocket.emit("location", jsonBody);
 
-                                String url = "https://sagip.onrender.com/api/web-socket";
-
-                                StringRequest request = new StringRequest(Request.Method.PUT, url,
-                                        new Response.Listener<String>() {
-                                            @Override
-                                            public void onResponse(String response) {
-                                                Log.d(TAG, "Location update sent successfully");
-                                            }
-                                        }, new Response.ErrorListener() {
-                                    @Override
-                                    public void onErrorResponse(VolleyError error) {
-                                        Log.e(TAG, "Failed to send location update: " + error.toString());
-                                    }
-                                }) {
-                                    @Override
-                                    public Map<String, String> getHeaders() {
-                                        Map<String, String> headers = new HashMap<>();
-                                        headers.put("Authorization", "Bearer " + jwtToken);
-                                        return headers;
-                                    }
-
-                                    @Override
-                                    public String getBodyContentType() {
-                                        return "application/json";
-                                    }
-
-                                    @Override
-                                    public byte[] getBody() throws AuthFailureError {
-                                        return jsonBody.toString().getBytes();
-                                    }
-                                };
-
-                                RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
-                                requestQueue.add(request);
-
+                                // Show location in toast
+                                runOnUiThread(() -> {
+                                    Toast.makeText(MainActivity.this, "Lat: " + latitude + " Lng: " + longitude, Toast.LENGTH_SHORT).show();
+                                });
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -910,11 +903,11 @@ public class MainActivity extends AppCompatActivity {
                             || ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
                     } else {
-                        Log.e(TAG, "Location permission not granted");
+                        Toast.makeText(MainActivity.this, "Location permission not granted", Toast.LENGTH_SHORT).show();
                     }
                 }
-            });
-        }
+
+
     }
 
     private void isWifiEnabled() {
@@ -932,12 +925,12 @@ public class MainActivity extends AppCompatActivity {
         if (networkInfo != null && networkInfo.isConnected()) {
 
 
-            Toast.makeText(this, "Internet is available!", Toast.LENGTH_SHORT).show();
+          //  Toast.makeText(this, "Internet is available!", Toast.LENGTH_SHORT).show();
         }
 
         if (networkInfo == null || !networkInfo.isConnected()) {
 
-            Toast.makeText(this, "No internet connection!", Toast.LENGTH_SHORT).show();
+          //  Toast.makeText(this, "No internet connection!", Toast.LENGTH_SHORT).show();
         }
     }
 
