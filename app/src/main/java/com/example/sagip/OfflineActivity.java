@@ -20,8 +20,8 @@ public class OfflineActivity extends AppCompatActivity {
         setContentView(R.layout.activity_offline);
 
         // removes action bar
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.hide();
+       // ActionBar actionBar = getSupportActionBar();
+        //actionBar.hide();
 
         networkStateChangeReceiver = new NetworkReceiver();
 

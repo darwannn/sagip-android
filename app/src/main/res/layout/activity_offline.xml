@@ -5,10 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/white"
     tools:context=".OfflineActivity">
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="90dp"
         android:text="Oops! It seems like you're offline."
         android:textSize="15sp"
         android:gravity="center"
@@ -16,20 +17,20 @@
         android:background="@drawable/warning_background"
         android:paddingTop="10dp"
         android:layout_marginBottom="20dp"
-        android:fontFamily="@font/poppins"
+        android:fontFamily="@font/poppins_r"
         android:textColor="#FFFFFF"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="For the meantime, kindly refer to the following emergency hotlines for any necessary assistance."
-        android:textSize="17sp"
+        android:textSize="15sp"
         android:justificationMode="inter_word"
         android:layout_marginStart="15dp"
         android:layout_marginEnd="15dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="20dp"
-        android:fontFamily="@font/poppins"
+        android:fontFamily="@font/poppins_sb"
         android:textColor="#293B95"/>
 
     <Button
@@ -43,7 +44,7 @@
         android:drawablePadding="15dp"
         android:drawableStart="@drawable/icon_malolos"
         android:drawableEnd="@drawable/call_white_icon"
-        android:fontFamily="@font/poppins"
+        android:fontFamily="@font/poppins_b"
         android:textColor="@color/white"
         android:textAllCaps="false"
         android:background="@drawable/gradient_background"
@@ -65,7 +66,7 @@
         android:drawablePadding="15dp"
         android:drawableStart="@drawable/icon_firetruck"
         android:drawableEnd="@drawable/call_red_icon"
-        android:fontFamily="@font/poppins"
+        android:fontFamily="@font/poppins_b"
         android:textSize="18sp"
         android:background="@drawable/gray_background"
         android:paddingStart="15dp"
@@ -85,7 +86,7 @@
         android:drawablePadding="15dp"
         android:drawableStart="@drawable/icon_policecar"
         android:drawableEnd="@drawable/call_red_icon"
-        android:fontFamily="@font/poppins"
+        android:fontFamily="@font/poppins_b"
         android:textSize="18sp"
         android:background="@drawable/gray_background"
         android:paddingStart="15dp"
@@ -105,7 +106,7 @@
         android:drawablePadding="15dp"
         android:drawableStart="@drawable/icon_redcross"
         android:drawableEnd="@drawable/call_red_icon"
-        android:fontFamily="@font/poppins"
+        android:fontFamily="@font/poppins_b"
         android:textSize="18sp"
         android:background="@drawable/gray_background"
         android:paddingStart="15dp"

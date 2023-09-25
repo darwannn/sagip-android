@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,7 +22,7 @@ public class OnboardingActivtiy extends AppCompatActivity {
         setContentView(R.layout.activity_onboarding);
         new Handler().postDelayed(() -> {
             checkInternetConnectivity();
-        }, 2000);
+        }, 2500);
     }
 
     private void checkInternetConnectivity() {

@@ -10,8 +10,10 @@ import androidx.core.location.LocationManagerCompat;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -30,6 +32,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Vibrator;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -74,17 +77,18 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
+    public static com.example.sagip.TimerManager TimerManager;
     private NetworkReceiver networkStateChangeReceiver;
     private MediaPlayer mediaPlayer;
     private boolean isPlaying = false;
     private ConnectivityManager connectivityManager;
     private AudioManager audioManager;
-
     private WebView sagipWebView;
     private EditText searchBar;
     private Timer intervalTimer;
@@ -96,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
     private Pusher pusher;
     private Channel channel;
     private String fcmToken;
-
     public static boolean isMainActivityActive = false;
     private String mediaChooser;
     private static final String TAGGG = MainActivity.class.getSimpleName();
@@ -124,8 +127,6 @@ public class MainActivity extends AppCompatActivity {
     private Button startButton;
     private Button stopButton;
 
-
-
     @Override
     @SuppressLint("SetJavaScriptEnabled")
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,10 +140,27 @@ public class MainActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startSharingLocation("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0YXJnZXQiOiJsb2dpbiIsImlkIjoiNjQ3ODhkZmQyOTVlMmYxODRlNTVkMjBmIiwidXNlclR5cGUiOiJyZXNwb25kZXIiLCJzdGF0dXMiOiJ2ZXJpZmllZCIsImlkZW50aWZpZXIiOiIiLCJpYXQiOjE2OTUxMjU2NTMsImV4cCI6MTY5NTczMDQ1M30.sKDakxziMbSR7ckgDjhuzpRZyL9GjT3G4mQqAMbEQqU","64788dfd295e2f184e55d20f");
+                int locationMode = Settings.Secure.getInt(
+                        getContentResolver(),
+                        Settings.Secure.LOCATION_MODE,
+                        Settings.Secure.LOCATION_MODE_OFF
+                );
+
+                if (locationMode == Settings.Secure.LOCATION_MODE_OFF) {
+                    // Location services are disabled, prompt the user to enable them
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
+                } else {
+                    // Location services are enabled, proceed with location-related operations
+                    startButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startSharingLocation("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0YXJnZXQiOiJsb2dpbiIsImlkIjoiNjQ3ODhkZmQyOTVlMmYxODRlNTVkMjBmIiwidXNlclR5cGUiOiJyZXNwb25kZXIiLCJzdGF0dXMiOiJ2ZXJpZmllZCIsImlkZW50aWZpZXIiOiIiLCJpYXQiOjE2OTUxMjU2NTMsImV4cCI6MTY5NTczMDQ1M30.sKDakxziMbSR7ckgDjhuzpRZyL9GjT3G4mQqAMbEQqU","64788dfd295e2f184e55d20f");
+                        }
+                    });
+                }
             }
         });
-
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -179,8 +197,8 @@ public class MainActivity extends AppCompatActivity {
 
 
         // removes action bar
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.hide();
+        //ActionBar actionBar = getSupportActionBar();
+        //actionBar.hide();
 
         // fix error exposed beyond app through ClipData.Item.getUri()
 //        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
@@ -262,8 +280,8 @@ public class MainActivity extends AppCompatActivity {
                 } else if (mediaChooser.equals("camcorder")) {
 
                     intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                    intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 3);
-                    intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
+                    intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 60);
+                    intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
                 } else {
 
                     intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -400,10 +418,16 @@ public class MainActivity extends AppCompatActivity {
 
     // Create an image file
     private File createImageFile() throws IOException {
-        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "img_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        return File.createTempFile(imageFileName, ".jpg", storageDir);
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        String imageFileName = "IMG" + timeStamp + ".jpg";
+        File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),"Camera");
+
+        if (!storageDir.exists()) {
+            storageDir.mkdirs();
+        }
+
+        File imageFile = new File(storageDir,imageFileName); // Create a temporary image file
+        return imageFile; // Return the created file
     }
 
     @Override
@@ -608,15 +632,9 @@ public class MainActivity extends AppCompatActivity {
 
     @JavascriptInterface
     public void setMediaChooser(String option) {
-        try {
-            Toast.makeText(this, "set to " + option, Toast.LENGTH_SHORT).show();
-            mediaChooser = option;
-//        Toast.makeText(this, "hhelooo", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            e.printStackTrace(); // Log the exception and its stack trace
-        }
-
-
+        Toast.makeText(this, "set to " + option, Toast.LENGTH_SHORT).show();
+        mediaChooser = option;
+//        Toast.makeText(this, "hello", Toast.LENGTH_SHORT).show();
     }
 
     @JavascriptInterface
@@ -639,10 +657,28 @@ public class MainActivity extends AppCompatActivity {
         startActivity(mapIntent);
     }
 
+//    @JavascriptInterface
+//    public void startSharingLocation(String myToken, String userId) {
+//        //isMicrophoneEnabled();
+//        // isCameraEnabled();
+//        intervalTimer = new Timer();
+//        intervalTimer.scheduleAtFixedRate(new TimerTask() {
+//            @Override
+//            public void run() {
+//                jwtToken = myToken;
+//                residentUserId = userId;
+//                sendLocationUpdate();
+//            }
+//        }, 0, 3000);
+//        Intent serviceIntent = new Intent(this, ForegroundService.class);
+//        serviceIntent.putExtra("inputExtra", "Foreground Service Example");
+//        startService(serviceIntent);
+//    }
+
     @JavascriptInterface
     public void startSharingLocation(String myToken, String userId) {
         //isMicrophoneEnabled();
-       // isCameraEnabled();
+        // isCameraEnabled();
         Timer intervalTimer = TimerManager.getIntervalTimer();
         intervalTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -660,12 +696,12 @@ public class MainActivity extends AppCompatActivity {
     @JavascriptInterface
     public void stopSharingLocation() {
 
-
-
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         stopService(serviceIntent);
         TimerManager.cancelIntervalTimer();
     }
+
+
 
 //    public boolean isCameraAndMicEnabled() {
 //
@@ -805,7 +841,7 @@ public class MainActivity extends AppCompatActivity {
                     FusedLocationProviderClient fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
                     LocationRequest locationRequest = LocationRequest.create();
                     locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                    //locationRequest.setInterval(1000); // Update location every 1 second
+                    locationRequest.setInterval(1000); // Update location every 1 second
 
                     LocationCallback locationCallback = new LocationCallback() {
                         @Override
@@ -820,7 +856,7 @@ public class MainActivity extends AppCompatActivity {
                                 // Create JSON payload and send location update to the server
                                 JSONObject jsonBody = new JSONObject();
                                 jsonBody.put("receiver", "64788dfd295e2f184e55d20f");
-                               // jsonBody.put("receiver", residentUserId);
+                                // jsonBody.put("receiver", residentUserId);
                                 jsonBody.put("event", "location");
 
                                 JSONObject contentJson = new JSONObject();
@@ -878,7 +914,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-       }
+        }
     }
 
     private void isWifiEnabled() {
@@ -928,10 +964,5 @@ public class MainActivity extends AppCompatActivity {
             mediaPlayer = null;
         }
         isPlaying = false;
-    }
-
-    @JavascriptInterface
-    public void showToast(String toastMessage) {
-        Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show();
     }
 }

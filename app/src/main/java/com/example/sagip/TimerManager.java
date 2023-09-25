@@ -1,7 +1,6 @@
 package com.example.sagip;
 
 import java.util.Timer;
-import java.util.TimerTask;
 
 public class TimerManager {
     private static Timer intervalTimer;

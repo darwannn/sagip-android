@@ -55,9 +55,9 @@ public class CloudMessagingService extends FirebaseMessagingService {
 
 
         if (isDarkModeEnabled()) {
-            builder.setSmallIcon(R.drawable.icon_light);
+            builder.setSmallIcon(R.drawable.sagip_white);
         } else {
-            builder.setSmallIcon(R.drawable.icon_dark);
+            builder.setSmallIcon(R.drawable.sagip_black);
         }
 
         notificationManager.notify(1, builder.build());
