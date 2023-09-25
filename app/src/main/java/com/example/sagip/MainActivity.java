@@ -87,6 +87,7 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 
 public class MainActivity extends AppCompatActivity {
+    private static final int PERMISSIONS_REQUEST_BACKGROUND_LOCATION = 1006;
     public static com.example.sagip.TimerManager TimerManager;
 
     private NetworkReceiver networkStateChangeReceiver;
@@ -119,26 +120,28 @@ public class MainActivity extends AppCompatActivity {
     String[] PERMISSIONS = {
             android.Manifest.permission.READ_CONTACTS,
             android.Manifest.permission.WRITE_CONTACTS,
-           // android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            // android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
             android.Manifest.permission.VIBRATE,
             android.Manifest.permission.READ_SMS,
             android.Manifest.permission.CAMERA,
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION,
-            android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-            android.Manifest.permission.RECORD_AUDIO,
+//            android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+//            android.Manifest.permission.RECORD_AUDIO,
             android.Manifest.permission.POST_NOTIFICATIONS
     };
-    String jwtToken,residentUserId;
+    String jwtToken, residentUserId;
     private Button startButton;
     private Button stopButton;
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private Socket mSocket;
+
     {
         try {
             mSocket = IO.socket("https://sagip.onrender.com");
-        } catch (URISyntaxException e) {}
+        } catch (URISyntaxException e) {
+        }
     }
 
 
@@ -155,31 +158,23 @@ public class MainActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int locationMode = Settings.Secure.getInt(
-                        getContentResolver(),
-                        Settings.Secure.LOCATION_MODE,
-                        Settings.Secure.LOCATION_MODE_OFF
-                );
 
-                if (locationMode == Settings.Secure.LOCATION_MODE_OFF) {
-                    // Location services are disabled, prompt the user to enable them
-                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    startActivity(intent);
-                } else {
-                    // Location services are enabled, proceed with location-related operations
-                    startButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            startSharingLocation("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0YXJnZXQiOiJsb2dpbiIsImlkIjoiNjQ3ODhkZmQyOTVlMmYxODRlNTVkMjBmIiwidXNlclR5cGUiOiJyZXNwb25kZXIiLCJzdGF0dXMiOiJ2ZXJpZmllZCIsImlkZW50aWZpZXIiOiIiLCJpYXQiOjE2OTUxMjU2NTMsImV4cCI6MTY5NTczMDQ1M30.sKDakxziMbSR7ckgDjhuzpRZyL9GjT3G4mQqAMbEQqU","64788dfd295e2f184e55d20f");
-                        }
-                    });
-                }
+
+                // Location services are enabled, proceed with location-related operations
+                startButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        startSharingLocation("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0YXJnZXQiOiJsb2dpbiIsImlkIjoiNjQ3ODhkZmQyOTVlMmYxODRlNTVkMjBmIiwidXNlclR5cGUiOiJyZXNwb25kZXIiLCJzdGF0dXMiOiJ2ZXJpZmllZCIsImlkZW50aWZpZXIiOiIiLCJpYXQiOjE2OTUxMjU2NTMsImV4cCI6MTY5NTczMDQ1M30.sKDakxziMbSR7ckgDjhuzpRZyL9GjT3G4mQqAMbEQqU", "64788dfd295e2f184e55d20f");
+                    }
+                });
+
             }
         });
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               stopSharingLocation();
+                stopSharingLocation();
 
             }
         });
@@ -208,10 +203,6 @@ public class MainActivity extends AppCompatActivity {
 //        });
 
 
-
-
-
-
         // removes action bar
         //ActionBar actionBar = getSupportActionBar();
         //actionBar.hide();
@@ -224,7 +215,6 @@ public class MainActivity extends AppCompatActivity {
         getFcmToken();
         subscribeToTopic();
         createNotificationChannel();
-
 
 
         //sagipWebView();
@@ -258,9 +248,8 @@ public class MainActivity extends AppCompatActivity {
         sagipWebView.addJavascriptInterface(MainActivity.this, "AndroidInterface");
 
 
-
         sagipWebView.setWebChromeClient(new WebChromeClient() {
-                        public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
 
                 if (mUMA != null) {
                     mUMA.onReceiveValue(null);
@@ -284,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
                         if (photoFile != null) {
                             mCM = "file:" + photoFile.getAbsolutePath();
 
-                            Uri imageUri = FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID + ".provider",photoFile);
+                            Uri imageUri = FileProvider.getUriForFile(MainActivity.this, BuildConfig.APPLICATION_ID + ".provider", photoFile);
                             intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         } else {
@@ -345,6 +334,7 @@ public class MainActivity extends AppCompatActivity {
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
                 callback.invoke(origin, true, false);
             }
+
             @Override
             public void onPermissionRequest(final PermissionRequest request) {
                 request.grant(request.getResources());
@@ -363,6 +353,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return super.shouldOverrideUrlLoading(view, request);
             }
+
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
@@ -370,8 +361,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-
-
 
 
         searchBar = findViewById(R.id.searchBar);
@@ -439,13 +428,13 @@ public class MainActivity extends AppCompatActivity {
     private File createImageFile() throws IOException {
         @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         String imageFileName = "IMG" + timeStamp + ".jpg";
-        File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),"Camera");
+        File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "Camera");
 
         if (!storageDir.exists()) {
             storageDir.mkdirs();
         }
 
-        File imageFile = new File(storageDir,imageFileName); // Create a temporary image file
+        File imageFile = new File(storageDir, imageFileName); // Create a temporary image file
         return imageFile; // Return the created file
     }
 
@@ -547,7 +536,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseMessaging.getInstance().subscribeToTopic("sagip").addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-               // Toast.makeText(MainActivity.this, "subascriba", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(MainActivity.this, "subascriba", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -607,7 +596,7 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-             //   Toast.makeText(MainActivity.this, "Identifier: " + identifier, Toast.LENGTH_SHORT).show();
+                //   Toast.makeText(MainActivity.this, "Identifier: " + identifier, Toast.LENGTH_SHORT).show();
                 RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
                 String url = "https://sagip.onrender.com/account/fcm";
 
@@ -643,7 +632,7 @@ public class MainActivity extends AppCompatActivity {
     @JavascriptInterface
     public void vibrateOnHold() {
         Vibrator vibrator = (Vibrator) getSystemService(MainActivity.this.VIBRATOR_SERVICE);
-      //  Toast.makeText(this, "showing", Toast.LENGTH_SHORT).show();
+        //  Toast.makeText(this, "showing", Toast.LENGTH_SHORT).show();
         if (vibrator.hasVibrator()) {
             vibrator.vibrate(500);
         }
@@ -651,7 +640,7 @@ public class MainActivity extends AppCompatActivity {
 
     @JavascriptInterface
     public void setMediaChooser(String option) {
-      //  Toast.makeText(this, "set to " + option, Toast.LENGTH_SHORT).show();
+        //  Toast.makeText(this, "set to " + option, Toast.LENGTH_SHORT).show();
         mediaChooser = option;
 //        Toast.makeText(this, "hello", Toast.LENGTH_SHORT).show();
     }
@@ -696,29 +685,59 @@ public class MainActivity extends AppCompatActivity {
 
     @JavascriptInterface
     public void startSharingLocation(String myToken, String userId) {
+        Toast.makeText(this, "in1", Toast.LENGTH_SHORT).show();
+        int backgroundLocationPermission = ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION);
 
-        
-        Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
+        int locationMode = Settings.Secure.getInt(
+                getContentResolver(),
+                Settings.Secure.LOCATION_MODE,
+                Settings.Secure.LOCATION_MODE_OFF
+        );
 
-        jwtToken = myToken;
-        residentUserId = userId;
-
-        // Initialize FusedLocationProviderClient and LocationCallback
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                // Your existing location update code
-                // ...
+        if (backgroundLocationPermission != PackageManager.PERMISSION_GRANTED) {
+            // Permission not granted or user hasn't allowed it "Allow all the time"
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                // Show a message to the user to guide them to enable "Allow all the time"
+                Toast.makeText(this, "Please select \"Allow all the time\" for the location permission", Toast.LENGTH_LONG).show();
             }
-        };
 
-        sendLocationUpdate();
+            // Request the permission
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                    PERMISSIONS_REQUEST_BACKGROUND_LOCATION);
+        } else if (locationMode == Settings.Secure.LOCATION_MODE_OFF) {
+            Toast.makeText(this, "in2", Toast.LENGTH_SHORT).show();
+            // Location services are disabled, prompt the user to enable them
+            Toast.makeText(this, "Please enable your location", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
 
-        Intent serviceIntent = new Intent(this, ForegroundService.class);
-        serviceIntent.putExtra("inputExtra", "Foreground Service Example");
-        startService(serviceIntent);
+                Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
+
+                jwtToken = myToken;
+                residentUserId = userId;
+
+                // Initialize FusedLocationProviderClient and LocationCallback
+                fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+//        locationCallback = new LocationCallback() {
+//            @Override
+//            public void onLocationResult(LocationResult locationResult) {
+//
+//            }
+//        };
+
+                sendLocationUpdate();
+
+                Intent serviceIntent = new Intent(this, ForegroundService.class);
+                serviceIntent.putExtra("inputExtra", "Foreground Service Example");
+                startService(serviceIntent);
+
+        }
     }
+
 
     public void stopSharingLocation() {
         Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
@@ -727,8 +746,6 @@ public class MainActivity extends AppCompatActivity {
 
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
-
-
 
 
 //    public boolean isCameraAndMicEnabled() {
@@ -773,7 +790,7 @@ public class MainActivity extends AppCompatActivity {
 //            runOnUiThread(new Runnable() {
 //                @Override
 //                public void run() {
-                   // Toast.makeText(MainActivity.this, "CAm  denied", Toast.LENGTH_SHORT).show();
+            // Toast.makeText(MainActivity.this, "CAm  denied", Toast.LENGTH_SHORT).show();
 //                }
 //            });
 
@@ -784,7 +801,7 @@ public class MainActivity extends AppCompatActivity {
 //            runOnUiThread(new Runnable() {
 //                @Override
 //                public void run() {
-                   // Toast.makeText(MainActivity.this, "CAm enabled", Toast.LENGTH_SHORT).show();
+            // Toast.makeText(MainActivity.this, "CAm enabled", Toast.LENGTH_SHORT).show();
 //                }
 //            });
             return true;
@@ -803,7 +820,7 @@ public class MainActivity extends AppCompatActivity {
 //            runOnUiThread(new Runnable() {
 //                @Override
 //                public void run() {
-                   // Toast.makeText(MainActivity.this, "Mic  denied", Toast.LENGTH_SHORT).show();
+            // Toast.makeText(MainActivity.this, "Mic  denied", Toast.LENGTH_SHORT).show();
 //                }
 //            });
 
@@ -814,7 +831,7 @@ public class MainActivity extends AppCompatActivity {
 //            runOnUiThread(new Runnable() {
 //                @Override
 //                public void run() {
-                   // Toast.makeText(MainActivity.this, "Mic enabled", Toast.LENGTH_SHORT).show();
+            // Toast.makeText(MainActivity.this, "Mic enabled", Toast.LENGTH_SHORT).show();
 //                }
 //            });
             return true;
@@ -831,12 +848,12 @@ public class MainActivity extends AppCompatActivity {
 
         if (!hasPermissions(getApplicationContext(), PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, "Location permission is denied", Toast.LENGTH_SHORT).show();
-                    }
-                });
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MainActivity.this, "Location permission is denied", Toast.LENGTH_SHORT).show();
+                }
+            });
             intervalTimer.cancel();
             return false;
         } else {
@@ -853,7 +870,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                       // Toast.makeText(MainActivity.this, "Location services are enabled", Toast.LENGTH_SHORT).show();
+                        // Toast.makeText(MainActivity.this, "Location services are enabled", Toast.LENGTH_SHORT).show();
                     }
                 });
                 return true;
@@ -865,51 +882,50 @@ public class MainActivity extends AppCompatActivity {
         if (isLocationEnabled()) {
 
 
+            LocationRequest locationRequest = LocationRequest.create();
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            locationRequest.setInterval(10000); // Update location every 10 seconds
 
-                    LocationRequest locationRequest = LocationRequest.create();
-                    locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                    locationRequest.setInterval(10000); // Update location every 10 seconds
 
+            locationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    Location location = locationResult.getLastLocation();
+                    double latitude = location.getLatitude();
+                    double longitude = location.getLongitude();
+                    Log.d(TAG, "latitude " + latitude);
+                    Log.d(TAG, "longitude " + longitude);
 
-                    locationCallback = new LocationCallback() {
-                        @Override
-                        public void onLocationResult(LocationResult locationResult) {
-                            Location location = locationResult.getLastLocation();
-                            double latitude = location.getLatitude();
-                            double longitude = location.getLongitude();
-                            Log.d(TAG, "latitude " + latitude);
-                            Log.d(TAG, "longitude " + longitude);
+                    try {
+                        // Create JSON payload and send location update to the server
+                        JSONObject jsonBody = new JSONObject();
+                        jsonBody.put("receiver", residentUserId);
+                        jsonBody.put("event", "location");
 
-                            try {
-                                // Create JSON payload and send location update to the server
-                                JSONObject jsonBody = new JSONObject();
-                                jsonBody.put("receiver", residentUserId);
-                                jsonBody.put("event", "location");
+                        JSONObject contentJson = new JSONObject();
+                        contentJson.put("latitude", latitude);
+                        contentJson.put("longitude", longitude);
 
-                                JSONObject contentJson = new JSONObject();
-                                contentJson.put("latitude", latitude);
-                                contentJson.put("longitude", longitude);
+                        jsonBody.put("content", contentJson);
+                        mSocket.emit("location", jsonBody);
 
-                                jsonBody.put("content", contentJson);
-                                mSocket.emit("location", jsonBody);
-
-                                // Show location in toast
-                                runOnUiThread(() -> {
-                                    Toast.makeText(MainActivity.this, "Lat: " + latitude + " Lng: " + longitude, Toast.LENGTH_SHORT).show();
-                                });
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    };
-
-                    if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                            || ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
-                    } else {
-                        Toast.makeText(MainActivity.this, "Location permission not granted", Toast.LENGTH_SHORT).show();
+                        // Show location in toast
+                        runOnUiThread(() -> {
+                            Toast.makeText(MainActivity.this, "Lat: " + latitude + " Lng: " + longitude, Toast.LENGTH_SHORT).show();
+                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 }
+            };
+
+            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    || ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+            } else {
+                Toast.makeText(MainActivity.this, "Location permission not granted", Toast.LENGTH_SHORT).show();
+            }
+        }
 
 
     }
@@ -929,15 +945,14 @@ public class MainActivity extends AppCompatActivity {
         if (networkInfo != null && networkInfo.isConnected()) {
 
 
-          //  Toast.makeText(this, "Internet is available!", Toast.LENGTH_SHORT).show();
+            //  Toast.makeText(this, "Internet is available!", Toast.LENGTH_SHORT).show();
         }
 
         if (networkInfo == null || !networkInfo.isConnected()) {
 
-          //  Toast.makeText(this, "No internet connection!", Toast.LENGTH_SHORT).show();
+            //  Toast.makeText(this, "No internet connection!", Toast.LENGTH_SHORT).show();
         }
     }
-
 
 
     public void maximizeVolume() {
