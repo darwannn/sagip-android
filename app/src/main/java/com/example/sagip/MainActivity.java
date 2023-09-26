@@ -135,14 +135,6 @@ public class MainActivity extends AppCompatActivity {
     private Button stopButton;
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
-    private Socket mSocket;
-
-    {
-        try {
-            mSocket = IO.socket("https://sagip.onrender.com");
-        } catch (URISyntaxException e) {
-        }
-    }
 
 
     @Override
@@ -150,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mSocket.connect();
+        SocketManager.connectSocket();
         networkStateChangeReceiver = new NetworkReceiver();
         startButton = findViewById(R.id.start_button);
         stopButton = findViewById(R.id.stop_button);
@@ -465,10 +457,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        if (pusher != null) {
-            pusher.disconnect();
-        }
+        SocketManager.disconnectSocket();
+//        if (pusher != null) {
+//            pusher.disconnect();
+//        }
     }
 
 
@@ -717,8 +709,8 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-                jwtToken = myToken;
-                residentUserId = userId;
+               // jwtToken = myToken;
+               // residentUserId = userId;
 
                 // Initialize FusedLocationProviderClient and LocationCallback
         //        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -732,7 +724,7 @@ public class MainActivity extends AppCompatActivity {
            //     sendLocationUpdate();
 
                 Intent serviceIntent = new Intent(this, ForegroundService.class);
-                serviceIntent.putExtra("inputExtra", "Foreground Service");
+                serviceIntent.putExtra("residentUserId", userId);
                 startService(serviceIntent);
 
         }
@@ -839,96 +831,96 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public boolean isLocationEnabled() {
-        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        String[] PERMISSIONS = {
-                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION
-        };
+//    public boolean isLocationEnabled() {
+//        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+//        String[] PERMISSIONS = {
+//                android.Manifest.permission.ACCESS_FINE_LOCATION,
+//                android.Manifest.permission.ACCESS_COARSE_LOCATION
+//        };
+//
+//        if (!hasPermissions(getApplicationContext(), PERMISSIONS)) {
+//            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Toast.makeText(MainActivity.this, "Location permission is denied", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//            intervalTimer.cancel();
+//            return false;
+//        } else {
+//            if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Toast.makeText(MainActivity.this, "Location services are not enabled", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//                intervalTimer.cancel();
+//                return false;
+//            } else {
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        // Toast.makeText(MainActivity.this, "Location services are enabled", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//                return true;
+//            }
+//        }
+//    }
 
-        if (!hasPermissions(getApplicationContext(), PERMISSIONS)) {
-            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(MainActivity.this, "Location permission is denied", Toast.LENGTH_SHORT).show();
-                }
-            });
-            intervalTimer.cancel();
-            return false;
-        } else {
-            if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, "Location services are not enabled", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                intervalTimer.cancel();
-                return false;
-            } else {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Toast.makeText(MainActivity.this, "Location services are enabled", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                return true;
-            }
-        }
-    }
-
-    public void sendLocationUpdate() {
-        if (isLocationEnabled()) {
-
-
-            LocationRequest locationRequest = LocationRequest.create();
-            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            locationRequest.setInterval(10000); // Update location every 10 seconds
-
-
-            locationCallback = new LocationCallback() {
-                @Override
-                public void onLocationResult(LocationResult locationResult) {
-                    Location location = locationResult.getLastLocation();
-                    double latitude = location.getLatitude();
-                    double longitude = location.getLongitude();
-                    Log.d(TAG, "latitude " + latitude);
-                    Log.d(TAG, "longitude " + longitude);
-
-                    try {
-                        // Create JSON payload and send location update to the server
-                        JSONObject jsonBody = new JSONObject();
-                        jsonBody.put("receiver", residentUserId);
-                        jsonBody.put("event", "location");
-
-                        JSONObject contentJson = new JSONObject();
-                        contentJson.put("latitude", latitude);
-                        contentJson.put("longitude", longitude);
-
-                        jsonBody.put("content", contentJson);
-                        mSocket.emit("location", jsonBody);
-
-                        // Show location in toast
-                        runOnUiThread(() -> {
-                            Toast.makeText(MainActivity.this, "Lat: " + latitude + " Lng: " + longitude, Toast.LENGTH_SHORT).show();
-                        });
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-
-            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                    || ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
-            } else {
-                Toast.makeText(MainActivity.this, "Location permission not granted", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-
-    }
+//    public void sendLocationUpdate() {
+//        if (isLocationEnabled()) {
+//
+//
+//            LocationRequest locationRequest = LocationRequest.create();
+//            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//            locationRequest.setInterval(10000); // Update location every 10 seconds
+//
+//
+//            locationCallback = new LocationCallback() {
+//                @Override
+//                public void onLocationResult(LocationResult locationResult) {
+//                    Location location = locationResult.getLastLocation();
+//                    double latitude = location.getLatitude();
+//                    double longitude = location.getLongitude();
+//                    Log.d(TAG, "latitude " + latitude);
+//                    Log.d(TAG, "longitude " + longitude);
+//
+//                    try {
+//                        // Create JSON payload and send location update to the server
+//                        JSONObject jsonBody = new JSONObject();
+//                        jsonBody.put("receiver", residentUserId);
+//                        jsonBody.put("event", "location");
+//
+//                        JSONObject contentJson = new JSONObject();
+//                        contentJson.put("latitude", latitude);
+//                        contentJson.put("longitude", longitude);
+//
+//                        jsonBody.put("content", contentJson);
+//                        mSocket.emit("location", jsonBody);
+//
+//                        // Show location in toast
+//                        runOnUiThread(() -> {
+//                            Toast.makeText(MainActivity.this, "Lat: " + latitude + " Lng: " + longitude, Toast.LENGTH_SHORT).show();
+//                        });
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            };
+//
+//            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+//                    || ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+//                fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+//            } else {
+//                Toast.makeText(MainActivity.this, "Location permission not granted", Toast.LENGTH_SHORT).show();
+//            }
+//        }
+//
+//
+//    }
 
     private void isWifiEnabled() {
 //        NetworkInfo wifiNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);

@@ -42,6 +42,8 @@ public class ForegroundService extends Service {
     private static final String TAG = "LOG_TAG";
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
+
+    String residentUserId = "";
     @Override
     public void onCreate() {
         super.onCreate();
@@ -55,6 +57,8 @@ public class ForegroundService extends Service {
         };
     }
     public int onStartCommand(Intent intent, int flags, int startId) {
+        residentUserId =  intent.getStringExtra("residentUserId");
+
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, buildNotification());
         Timer intervalTimer = MainActivity.TimerManager.getIntervalTimer();
@@ -156,52 +160,55 @@ public class ForegroundService extends Service {
     }
 
     public void sendLocationUpdate() {
+//        if (isLocationEnabled()) {
+            LocationRequest locationRequest = LocationRequest.create();
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            locationRequest.setInterval(10000); // Update location every 10 seconds
 
-        LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(10000); // Update location every 10 seconds
+
+            locationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    Location location = locationResult.getLastLocation();
+                    double latitude = location.getLatitude();
+                    double longitude = location.getLongitude();
+                    Log.d(TAG, "latitude " + latitude);
+                    Log.d(TAG, "longitude " + longitude);
 
 
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                Location location = locationResult.getLastLocation();
-                double latitude = location.getLatitude();
-                double longitude = location.getLongitude();
-                Log.d(TAG, "latitude " + latitude);
-                Log.d(TAG, "longitude " + longitude);
+                        // Create JSON payload and send location update to the server
+//                        JSONObject jsonBody = new JSONObject();
+//                        jsonBody.put("receiver", residentUserId);
+//                        jsonBody.put("event", "location");
+//
+//                        JSONObject contentJson = new JSONObject();
+//                        contentJson.put("latitude", latitude);
+//                        contentJson.put("longitude", longitude);
+//
+//                        jsonBody.put("content", contentJson);
+//
+//
+//
+//                        SocketManager.emitLocationEvent(jsonBody);
+                        SocketManager.emitLocationEvent(residentUserId, latitude,longitude);
+                        // Show location in toast
+                        // Use a handler to show the toast from the main thread
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            Toast.makeText(ForegroundService.this, "Lat: " + latitude + " Lng: " + longitude, Toast.LENGTH_SHORT).show();
+                        });
 
-                try {
-                    // Create JSON payload and send location update to the server
-                    JSONObject jsonBody = new JSONObject();
-                    jsonBody.put("receiver", "residentUserId");
-                    jsonBody.put("event", "location");
-
-                    JSONObject contentJson = new JSONObject();
-                    contentJson.put("latitude", latitude);
-                    contentJson.put("longitude", longitude);
-
-                    jsonBody.put("content", contentJson);
-                    //mSocket.emit("location", jsonBody);
-
-                    // Show location in toast
-                    // Use a handler to show the toast from the main thread
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        Toast.makeText(ForegroundService.this, "Lat: " + latitude + " Lng: " + longitude, Toast.LENGTH_SHORT).show();
-                    });
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
-            }
-        };
+            };
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
-        } else {
-            Toast.makeText(this, "Location permission not granted", Toast.LENGTH_SHORT).show();
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
+            } else {
+                Toast.makeText(this, "Location permission not granted", Toast.LENGTH_SHORT).show();
+            }
         }
-    }
+//    }
+
 
 
 //    }
