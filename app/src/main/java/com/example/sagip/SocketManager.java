@@ -42,9 +42,6 @@ public class SocketManager {
         Socket socket = getSocket();
         if (socket != null && socket.connected()) {
             try {
-//                new Handler(Looper.getMainLooper()).post(() -> {
-//                    Toast.makeText(SocketManager.this, "Lat: " + latitude + " Lng: " + longitude, Toast.LENGTH_SHORT).show();
-//                });
                 JSONObject jsonBodySocket = new JSONObject();
                 jsonBodySocket.put("receiver", residentUserId);
                 jsonBodySocket.put("event", "location");

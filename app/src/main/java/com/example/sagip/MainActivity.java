@@ -88,7 +88,7 @@ import io.socket.client.Socket;
 
 public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_BACKGROUND_LOCATION = 1006;
-    public static com.example.sagip.TimerManager TimerManager;
+
 
     private NetworkReceiver networkStateChangeReceiver;
     private MediaPlayer mediaPlayer;
@@ -97,20 +97,18 @@ public class MainActivity extends AppCompatActivity {
     private AudioManager audioManager;
     private WebView sagipWebView;
     private EditText searchBar;
-    private Timer intervalTimer;
+
     private static final String TAG = "PushNotification";
     private static final String CHANNEL_ID = "101";
     private static final int CAMERA_PERMISSION_REQUEST_CODE = 1001;
     private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1002;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1003;
-    private Pusher pusher;
-    private Channel channel;
+
     private String fcmToken;
     public static boolean isMainActivityActive = false;
     private String mediaChooser;
     private static final String TAGGG = MainActivity.class.getSimpleName();
-    public ValueCallback<Uri> mUploadMessage;
-    public static final int FILECHOOSER_RESULTCODE = 5173;
+
     private String mCM;
     private ValueCallback<Uri> mUM;
     private ValueCallback<Uri[]> mUMA;
@@ -126,15 +124,13 @@ public class MainActivity extends AppCompatActivity {
             android.Manifest.permission.CAMERA,
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION,
-//            android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-//            android.Manifest.permission.RECORD_AUDIO,
+            //android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+            //android.Manifest.permission.RECORD_AUDIO,
             android.Manifest.permission.POST_NOTIFICATIONS
     };
-    String jwtToken, residentUserId;
+
     private Button startButton;
     private Button stopButton;
-    private FusedLocationProviderClient fusedLocationClient;
-    private LocationCallback locationCallback;
 
 
     @Override
@@ -150,8 +146,6 @@ public class MainActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
                 // Location services are enabled, proceed with location-related operations
                 startButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -163,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -171,46 +166,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        //Button playButton = findViewById(R.id.btnPlay);
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        isWifiEnabled();
-
-//        playButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (!isPlaying) {
-//                    playSound();
-//                    maximizeVolume();
-//                    Toast.makeText(MainActivity.this, "Alarm play", Toast.LENGTH_SHORT).show();
-//                    playButton.setText("Stop");
-//                } else {
-//                    stopSound();
-//                    Toast.makeText(MainActivity.this, "Alarm stop", Toast.LENGTH_SHORT).show();
-//                    playButton.setText("Play");
-//                }
-//            }
-//        });
-
-
-        // removes action bar
-        //ActionBar actionBar = getSupportActionBar();
-        //actionBar.hide();
-
-        // fix error exposed beyond app through ClipData.Item.getUri()
-//        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-//        StrictMode.setVmPolicy(builder.build());
+        //isWifiEnabled();
 
         //invoke functions
         getFcmToken();
         subscribeToTopic();
         createNotificationChannel();
 
-
-        //sagipWebView();
-        //checkLocationEnabled();
 
         if (!hasPermissions(getApplicationContext(), PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
@@ -297,31 +262,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-//            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
-//
-//                if (mUMA != null) {
-//                    mUMA.onReceiveValue(null);
-//                }
-//                mUMA = filePathCallback;
-//
-//                String[] mimeTypes = {"image/*"};
-//
-//
-//                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-//                    intent.addCategory(Intent.CATEGORY_OPENABLE);
-//                    intent.setType("*/*");
-//                    intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
-//
-//                if (intent != null) {
-//                    startActivityForResult(intent, FCR);
-//
-//                    return true;
-//                } else {
-//                    return false;
-//                }
-//            }
-
-
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
                 callback.invoke(origin, true, false);
@@ -369,10 +309,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //change
         String url = getIntent().getStringExtra(ForegroundService.KEY_URL);
         if (url != null && !url.isEmpty()) {
-            // Load the URL in the WebView
             sagipWebView.loadUrl(url);
         }
 
@@ -458,9 +396,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         SocketManager.disconnectSocket();
-//        if (pusher != null) {
-//            pusher.disconnect();
-//        }
     }
 
 
@@ -479,7 +414,6 @@ public class MainActivity extends AppCompatActivity {
         unregisterReceiver(networkStateChangeReceiver);
     }
 
-
     // Handle permission request results
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -490,19 +424,19 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, handle camera-related tasks
             } else {
-                // Permission denied, handle accordingly (e.g., show a message)
+                // Permission denied, handle accordingly
             }
         } else if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, handle notification-related tasks
             } else {
-                // Permission denied, handle accordingly (e.g., show a message)
+                // Permission denied, handle accordingly
             }
         } else if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, handle location-related tasks
             } else {
-                // Permission denied, handle accordingly (e.g., show a message)
+                // Permission denied, handle accordingly
             }
         }
     }
@@ -528,7 +462,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseMessaging.getInstance().subscribeToTopic("sagip").addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                // Toast.makeText(MainActivity.this, "subascriba", Toast.LENGTH_SHORT).show();
+                // Toast.makeText(MainActivity.this, "subscribed", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -657,24 +591,6 @@ public class MainActivity extends AppCompatActivity {
         startActivity(mapIntent);
     }
 
-//    @JavascriptInterface
-//    public void startSharingLocation(String myToken, String userId) {
-//        //isMicrophoneEnabled();
-//        // isCameraEnabled();
-//        intervalTimer = new Timer();
-//        intervalTimer.scheduleAtFixedRate(new TimerTask() {
-//            @Override
-//            public void run() {
-//                jwtToken = myToken;
-//                residentUserId = userId;
-//                sendLocationUpdate();
-//            }
-//        }, 0, 3000);
-//        Intent serviceIntent = new Intent(this, ForegroundService.class);
-//        serviceIntent.putExtra("inputExtra", "Foreground Service Example");
-//        startService(serviceIntent);
-//    }
-
     @JavascriptInterface
     public void startSharingLocation(String myToken, String userId) {
         Toast.makeText(this, "in1", Toast.LENGTH_SHORT).show();
@@ -707,22 +623,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
 
-
-
-               // jwtToken = myToken;
-               // residentUserId = userId;
-
-                // Initialize FusedLocationProviderClient and LocationCallback
-        //        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-//        locationCallback = new LocationCallback() {
-//            @Override
-//            public void onLocationResult(LocationResult locationResult) {
-//
-//            }
-//        };
-
-           //     sendLocationUpdate();
-
                 Intent serviceIntent = new Intent(this, ForegroundService.class);
                 serviceIntent.putExtra("residentUserId", userId);
                 startService(serviceIntent);
@@ -735,41 +635,7 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         stopService(serviceIntent);
-
-        //fusedLocationClient.removeLocationUpdates(locationCallback);
     }
-
-
-//    public boolean isCameraAndMicEnabled() {
-//
-//        String[] PERMISSIONS = {
-//                android.Manifest.permission.CAMERA,
-//                android.Manifest.permission.RECORD_AUDIO,
-//        };
-//
-//        if (!hasPermissions(getApplicationContext(), PERMISSIONS)) {
-//            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
-//            runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    Toast.makeText(MainActivity.this, "Mic and CAm  denied", Toast.LENGTH_SHORT).show();
-//                }
-//            });
-//
-//            return false;
-//        } else {
-//
-//
-//                runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Toast.makeText(MainActivity.this, "Mic and CAm enabled", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//                return true;
-//
-//        }
-//    }
 
     public boolean isCameraEnabled() {
 
@@ -870,86 +736,24 @@ public class MainActivity extends AppCompatActivity {
 //        }
 //    }
 
-//    public void sendLocationUpdate() {
-//        if (isLocationEnabled()) {
+//    private void isWifiEnabled() {
 //
 //
-//            LocationRequest locationRequest = LocationRequest.create();
-//            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-//            locationRequest.setInterval(10000); // Update location every 10 seconds
+//        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+//        if (networkInfo != null && networkInfo.isConnected()) {
 //
 //
-//            locationCallback = new LocationCallback() {
-//                @Override
-//                public void onLocationResult(LocationResult locationResult) {
-//                    Location location = locationResult.getLastLocation();
-//                    double latitude = location.getLatitude();
-//                    double longitude = location.getLongitude();
-//                    Log.d(TAG, "latitude " + latitude);
-//                    Log.d(TAG, "longitude " + longitude);
-//
-//                    try {
-//                        // Create JSON payload and send location update to the server
-//                        JSONObject jsonBody = new JSONObject();
-//                        jsonBody.put("receiver", residentUserId);
-//                        jsonBody.put("event", "location");
-//
-//                        JSONObject contentJson = new JSONObject();
-//                        contentJson.put("latitude", latitude);
-//                        contentJson.put("longitude", longitude);
-//
-//                        jsonBody.put("content", contentJson);
-//                        mSocket.emit("location", jsonBody);
-//
-//                        // Show location in toast
-//                        runOnUiThread(() -> {
-//                            Toast.makeText(MainActivity.this, "Lat: " + latitude + " Lng: " + longitude, Toast.LENGTH_SHORT).show();
-//                        });
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            };
-//
-//            if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-//                    || ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-//                fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
-//            } else {
-//                Toast.makeText(MainActivity.this, "Location permission not granted", Toast.LENGTH_SHORT).show();
-//            }
+//            //  Toast.makeText(this, "Internet is available!", Toast.LENGTH_SHORT).show();
 //        }
 //
+//        if (networkInfo == null || !networkInfo.isConnected()) {
 //
+//            //  Toast.makeText(this, "No internet connection!", Toast.LENGTH_SHORT).show();
+//        }
 //    }
 
-    private void isWifiEnabled() {
-//        NetworkInfo wifiNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-//        boolean isWifiOn = wifiNetworkInfo.isConnected();
-//
-//        if (isWifiOn) {
-//            Toast.makeText(this, "Wi-Fi is ON", Toast.LENGTH_SHORT).show();
-//        } else {
-//            Toast.makeText(this, "Wi-Fi is OFF", Toast.LENGTH_SHORT).show();
-//        }
 
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected()) {
-
-
-            //  Toast.makeText(this, "Internet is available!", Toast.LENGTH_SHORT).show();
-        }
-
-        if (networkInfo == null || !networkInfo.isConnected()) {
-
-            //  Toast.makeText(this, "No internet connection!", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
-    public void maximizeVolume() {
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
-    }
 
     @JavascriptInterface
     public void playSOS() {
