@@ -103,24 +103,24 @@ public class ForegroundService extends Service {
                 .setContentIntent(pendingIntent)
                 .setOnlyAlertOnce(true)
                 .setNumber(0);
-
-        if (isDarkModeEnabled()) {
-           builder.setSmallIcon(R.drawable.sagip_white);
+        builder.setSmallIcon(R.drawable.sagip_status_bar_icon);
+    //    if (isDarkModeEnabled()) {
+       //    builder.setSmallIcon(R.drawable.sagip_white);
    //         builder.setSmallIcon(R.drawable.sagip_icon);
-        } else {
-           builder.setSmallIcon(R.drawable.sagip_black);
+      //  } else {
+      //     builder.setSmallIcon(R.drawable.sagip_black);
          //   builder.setSmallIcon(R.drawable.sagip_icon);
-        }
+     //   }
 
         return builder.build();
 
 
     }
 
-    private boolean isDarkModeEnabled() {
-        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
-    }
+//    private boolean isDarkModeEnabled() {
+//        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+//        return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
+//    }
 
     public void sendLocationUpdate() {
 
@@ -151,8 +151,6 @@ public class ForegroundService extends Service {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                     || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null);
-            } else {
-                Toast.makeText(this, "Location permission not granted", Toast.LENGTH_SHORT).show();
             }
         }
 

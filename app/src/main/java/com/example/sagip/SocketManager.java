@@ -45,14 +45,12 @@ public class SocketManager {
                 JSONObject jsonBodySocket = new JSONObject();
                 jsonBodySocket.put("receiver", residentUserId);
                 jsonBodySocket.put("event", "location");
-
                         JSONObject contentJson = new JSONObject();
                 contentJson.put("assistanceReqId", assistanceReqId);
                         contentJson.put("latitude", latitude);
                         contentJson.put("longitude", longitude);
 
                 jsonBodySocket.put("content", contentJson);
-
                 socket.emit("location", jsonBodySocket);
             } catch (JSONException e) {
                 e.printStackTrace();

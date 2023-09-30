@@ -636,51 +636,29 @@ public class MainActivity extends AppCompatActivity {
         startActivity(mapIntent);
     }
 
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @JavascriptInterface
     public void startSharingLocation(String myToken, String userId, String assistanceReqId) {
+        if (isLocationEnabled("responder")) {
 
-        Toast.makeText(this, "in1", Toast.LENGTH_SHORT).show();
-        int backgroundLocationPermission = ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION);
-
-        int locationMode = Settings.Secure.getInt(
-                getContentResolver(),
-                Settings.Secure.LOCATION_MODE,
-                Settings.Secure.LOCATION_MODE_OFF
-        );
-
-        if (backgroundLocationPermission != PackageManager.PERMISSION_GRANTED) {
-            // Permission not granted or user hasn't allowed it "Allow all the time"
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-                // Show an AlertDialog to guide the user to enable "Allow all the time"
-                new AlertDialog.Builder(this)
-                        .setMessage("Please select \"Allow all the time\" for the location permission")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // Request the permission
-//                                Toast.makeText(this, "Please select \"Allow all the time\" for the location permission", Toast.LENGTH_LONG).show();
-                                ActivityCompat.requestPermissions(MainActivity.this,
-                                        new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                                        PERMISSIONS_REQUEST_BACKGROUND_LOCATION);
-                            }
-                        })
-                        .show();
+            if (!isServiceRunning(ForegroundService.class)) {
+                Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
+                Intent serviceIntent = new Intent(this, ForegroundService.class);
+                serviceIntent.putExtra("residentUserId", userId);
+                serviceIntent.putExtra("assistanceReqId", assistanceReqId);
+                startService(serviceIntent);
+            } else {
+                Toast.makeText(this, "Service is already running", Toast.LENGTH_SHORT).show();
             }
-        } else if (locationMode == Settings.Secure.LOCATION_MODE_OFF) {
-            Toast.makeText(this, "in2", Toast.LENGTH_SHORT).show();
-            // Location services are disabled, prompt the user to enable them
-            Toast.makeText(this, "Please enable your location", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivity(intent);
-        } else {
-            Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
-
-            Intent serviceIntent = new Intent(this, ForegroundService.class);
-            serviceIntent.putExtra("residentUserId", userId);
-            serviceIntent.putExtra("assistanceReqId", assistanceReqId);
-            startService(serviceIntent);
-
         }
     }
 
@@ -730,8 +708,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean isLocationEnabled(String userType) {
         //sagipWebView.setVisibility(View.INVISIBLE);
 
-        Toast.makeText(this, "in", Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, userType + "", Toast.LENGTH_SHORT).show();
+      //  Toast.makeText(this, "in", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, userType + "", Toast.LENGTH_SHORT).show();
         String[] RESIDENT_PERMISSIONS = {
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION
@@ -743,24 +721,19 @@ public class MainActivity extends AppCompatActivity {
         };
         if (userType.equals("resident")) {
             if (!hasPermissions(this, RESIDENT_PERMISSIONS)) {
-
-
-                    Toast.makeText(this, "insider resi", Toast.LENGTH_SHORT).show();
+                //   Toast.makeText(this, "insider resi", Toast.LENGTH_SHORT).show();
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-                        Toast.makeText(this, "in111", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(this, "in111", Toast.LENGTH_SHORT).show();
                         // User has denied the permission but hasn't checked "Never ask again"
                         ActivityCompat.requestPermissions(this, RESIDENT_PERMISSIONS, LOCATION_PERMISSION_REQUEST_CODE);
                         //Toast.makeText(this, "Location permission is denied", Toast.LENGTH_SHORT).show()
                         return false;
                     } else {
-                        Toast.makeText(this, "in112", Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(this, "in112", Toast.LENGTH_SHORT).show();
                         // User has denied the permission and checked "Never ask again"
                         showAlert("Location Permission", "To continue, please enable the location permission in the app settings.", "settings", "Open App Settings");
                         return false;
                     }
-
-
-
             } else {
                 return isLocationOn();
             }
@@ -768,9 +741,9 @@ public class MainActivity extends AppCompatActivity {
         }
         if (userType.equals("responder")) {
             if (!hasPermissions(this, RESPONDER_PERMISSIONS)) {
-                Toast.makeText(this, userType + "", Toast.LENGTH_SHORT).show();
+               // Toast.makeText(this, userType + "", Toast.LENGTH_SHORT).show();
 
-                    Toast.makeText(this, "insider respo", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(this, "insider respo", Toast.LENGTH_SHORT).show();
             //        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
 //                    Toast.makeText(this, "in121", Toast.LENGTH_SHORT).show();
                     // User has denied the permission but hasn't checked "Never ask again"
@@ -779,26 +752,22 @@ public class MainActivity extends AppCompatActivity {
                     //Toast.makeText(this, "Location permission is denied", Toast.LENGTH_SHORT).show()
 //                    return false;
 //                         } else {
-                        Toast.makeText(this, "in123", Toast.LENGTH_SHORT).show();
+                     //   Toast.makeText(this, "in123", Toast.LENGTH_SHORT).show();
                         // User has denied the permission and checked "Never ask again"
                 showAlert("Location Permission", "To continue, please enable the location permission in the app settings and set it to  \"Allow all the time\".", "settings", "Open App Settings");
 //
                         return false;
                    // }
-
-
-
             } else {
                 return isLocationOn();
             }
-
         }
         return false;
     }
     @JavascriptInterface
     public boolean isLocationOn() {
 
-                Toast.makeText(this, "in2", Toast.LENGTH_SHORT).show();
+             //   Toast.makeText(this, "in2", Toast.LENGTH_SHORT).show();
                 LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
                     //Toast.makeText(this, "Location services are not enabled", Toast.LENGTH_SHORT).show();

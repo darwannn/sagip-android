@@ -35,12 +35,9 @@ public class CloudMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         showNotification(remoteMessage.getNotification().getTitle(),remoteMessage.getNotification().getBody(),  remoteMessage.getData().get("linkId"));
-      
-
     }
 
     private void showNotification(String title,String message, String linkId){
-
         String webpageUrl = "https://sagip.vercel.app/";
 
         Intent intent = new Intent(this, MainActivity.class);
@@ -56,19 +53,8 @@ public class CloudMessagingService extends FirebaseMessagingService {
                 .setAutoCancel(true);
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-
-
-        if (isDarkModeEnabled()) {
-            builder.setSmallIcon(R.drawable.sagip_white);
-        } else {
-            builder.setSmallIcon(R.drawable.sagip_black);
-        }
-
+        builder.setSmallIcon(R.drawable.sagip_status_bar_icon);
         notificationManager.notify(1, builder.build());
     }
 
-    private boolean isDarkModeEnabled() {
-        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
-    }
 }
