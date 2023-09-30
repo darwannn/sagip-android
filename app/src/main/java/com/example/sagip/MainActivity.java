@@ -35,6 +35,7 @@ import android.os.Looper;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -147,6 +148,14 @@ public class MainActivity extends AppCompatActivity {
         networkStateChangeReceiver = new NetworkReceiver();
         startButton = findViewById(R.id.start_button);
         stopButton = findViewById(R.id.stop_button);
+
+        String retrievedMyToken = PersistenceStorage.getFromPersistenceStorage(this, "myToken");
+        String retrievedUserId = PersistenceStorage.getFromPersistenceStorage(this, "userId");
+        String retrievedAssistanceReqId = PersistenceStorage.getFromPersistenceStorage(this, "assistanceReqId");
+        if (!TextUtils.isEmpty(retrievedUserId) && !TextUtils.isEmpty(retrievedAssistanceReqId)) {
+            startSharingLocation(retrievedMyToken,retrievedUserId,retrievedAssistanceReqId);
+
+        }
 
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -651,11 +660,13 @@ public class MainActivity extends AppCompatActivity {
         if (isLocationEnabled("responder")) {
 
             if (!isServiceRunning(ForegroundService.class)) {
+
                 Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
                 Intent serviceIntent = new Intent(this, ForegroundService.class);
                 serviceIntent.putExtra("residentUserId", userId);
                 serviceIntent.putExtra("assistanceReqId", assistanceReqId);
                 startService(serviceIntent);
+                PersistenceStorage.saveToPersistenceStorage(this, myToken, userId, assistanceReqId);
             } else {
                 Toast.makeText(this, "Service is already running", Toast.LENGTH_SHORT).show();
             }
@@ -667,6 +678,7 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         stopService(serviceIntent);
+        PersistenceStorage.clearPersistenceStorage(this);
     }
     private void showAlert(String title, String message, String intentType, String buttonText) {
         CustomDialog.showAlertDialog(this, title, message,
