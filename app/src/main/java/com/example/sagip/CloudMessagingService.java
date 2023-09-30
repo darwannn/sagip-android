@@ -1,6 +1,8 @@
 package com.example.sagip;
 
 
+import static com.example.sagip.ForegroundService.KEY_URL;
+
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -32,20 +34,22 @@ public class CloudMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
-        showNotification(remoteMessage.getNotification().getTitle(),remoteMessage.getNotification().getBody());
+        showNotification(remoteMessage.getNotification().getTitle(),remoteMessage.getNotification().getBody(),  remoteMessage.getData().get("linkId"));
        // Toast.makeText(this, ""+remoteMessage, Toast.LENGTH_LONG).show();
 
     }
 
-    private void showNotification(String title,String message){
+    private void showNotification(String title,String message, String linkId){
       //  Toast.makeText(this, "3", Toast.LENGTH_LONG).show();
+        String webpageUrl = "https://sagip.vercel.app/";
+
         Intent intent = new Intent(this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        intent.putExtra(KEY_URL, webpageUrl);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
 
-                .setContentTitle(title)
+                .setContentTitle(linkId)
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)

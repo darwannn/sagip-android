@@ -105,9 +105,11 @@ public class ForegroundService extends Service {
                 .setNumber(0);
 
         if (isDarkModeEnabled()) {
-            builder.setSmallIcon(R.drawable.sagip_white);
+           builder.setSmallIcon(R.drawable.sagip_white);
+   //         builder.setSmallIcon(R.drawable.sagip_icon);
         } else {
-            builder.setSmallIcon(R.drawable.sagip_black);
+           builder.setSmallIcon(R.drawable.sagip_black);
+         //   builder.setSmallIcon(R.drawable.sagip_icon);
         }
 
         return builder.build();
