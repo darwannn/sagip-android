@@ -7,11 +7,26 @@
     android:orientation="vertical"
     tools:context=".OnboardingActivtiy">
 
-<pl.droidsonroids.gif.GifImageView
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:src="@drawable/float_bg"
-    android:scaleType="centerCrop"/>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/sagip_onboarding" />
+
+    <ImageView
+        android:id="@+id/logoImageView"
+        android:layout_width="170dp"
+        android:layout_height="170dp"
+        android:src="@drawable/sagip_onboarding_logo"
+        android:layout_centerInParent="true" />
+
+    <ImageView
+        android:id="@+id/textImageView"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/sagip_onboarding_text" />
 
     <ProgressBar
         style="?android:attr/progressBarStyle"
@@ -22,6 +37,5 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="130dp" />
-
 
 </RelativeLayout>

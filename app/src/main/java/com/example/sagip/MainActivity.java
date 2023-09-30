@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
                 startButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        startSharingLocation("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0YXJnZXQiOiJsb2dpbiIsImlkIjoiNjQ3ODhkZmQyOTVlMmYxODRlNTVkMjBmIiwidXNlclR5cGUiOiJyZXNwb25kZXIiLCJzdGF0dXMiOiJ2ZXJpZmllZCIsImlkZW50aWZpZXIiOiIiLCJpYXQiOjE2OTUxMjU2NTMsImV4cCI6MTY5NTczMDQ1M30.sKDakxziMbSR7ckgDjhuzpRZyL9GjT3G4mQqAMbEQqU", "64788dfd295e2f184e55d20f");
+                        startSharingLocation("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0YXJnZXQiOiJsb2dpbiIsImlkIjoiNjQ3ODhkZmQyOTVlMmYxODRlNTVkMjBmIiwidXNlclR5cGUiOiJyZXNwb25kZXIiLCJzdGF0dXMiOiJ2ZXJpZmllZCIsImlkZW50aWZpZXIiOiIiLCJpYXQiOjE2OTUxMjU2NTMsImV4cCI6MTY5NTczMDQ1M30.sKDakxziMbSR7ckgDjhuzpRZyL9GjT3G4mQqAMbEQqU", "64788dfd295e2f184e55d20f","65082993d2c94183011a5412");
                     }
                 });
 
@@ -166,8 +166,8 @@ public class MainActivity extends AppCompatActivity {
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               // stopSharingLocation();
-                isLocationEnabled("responder");
+                stopSharingLocation();
+               // isLocationEnabled("responder");
 
             }
         });
@@ -195,6 +195,8 @@ public class MainActivity extends AppCompatActivity {
 
 //        webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        sagipWebView.clearCache(true);
+        sagipWebView.clearHistory();
 
         webSettings.setUseWideViewPort(true);
         webSettings.setAllowFileAccess(true);
@@ -635,7 +637,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @JavascriptInterface
-    public void startSharingLocation(String myToken, String userId) {
+    public void startSharingLocation(String myToken, String userId, String assistanceReqId) {
 
         Toast.makeText(this, "in1", Toast.LENGTH_SHORT).show();
         int backgroundLocationPermission = ActivityCompat.checkSelfPermission(this,
@@ -676,37 +678,35 @@ public class MainActivity extends AppCompatActivity {
 
             Intent serviceIntent = new Intent(this, ForegroundService.class);
             serviceIntent.putExtra("residentUserId", userId);
+            serviceIntent.putExtra("assistanceReqId", assistanceReqId);
             startService(serviceIntent);
 
         }
     }
 
-
+    @JavascriptInterface
     public void stopSharingLocation() {
         Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         stopService(serviceIntent);
     }
-    private void showPermissionDeniedAlert(String title, String message, String intentType, String buttonText) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder
-                .setMessage(message)
-                .setPositiveButton(buttonText, new DialogInterface.OnClickListener() {
+    private void showAlert(String title, String message, String intentType, String buttonText) {
+        CustomDialog.showAlertDialog(this, title, message,
+                buttonText, new CustomDialog.OnPositiveButtonClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if(intentType == "settings") {
+                    public void onPositiveButtonClick() {
+                        if(intentType.equals("settings") ) {
                             Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                             Uri uri = Uri.fromParts("package", getPackageName(), null);
                             intent.setData(uri);
                             startActivity(intent);
-                        } else if(intentType == "location"){
+                        } else if(intentType.equals("location")){
                             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                             startActivity(intent);
                         }
                     }
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+                });
+
     }
     @JavascriptInterface
     public boolean isCameraEnabled() {
@@ -719,7 +719,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             } else {
                 // User has denied the permission and checked "Never ask again"
-                showPermissionDeniedAlert("Camera Permission","To continue, please enable the camera permission in the app settings", "settings","Open App Settings");
+                showAlert("Camera Permission","To continue, please enable the camera permission in the app settings", "settings","Open App Settings");
                 return false;
             }
         } else {
@@ -729,71 +729,86 @@ public class MainActivity extends AppCompatActivity {
     @JavascriptInterface
     public boolean isLocationEnabled(String userType) {
         //sagipWebView.setVisibility(View.INVISIBLE);
-        Toast.makeText(this, "in", Toast.LENGTH_SHORT).show();
 
-        String[] PERMISSIONS = {
+        Toast.makeText(this, "in", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, userType + "", Toast.LENGTH_SHORT).show();
+        String[] RESIDENT_PERMISSIONS = {
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION
         };
-
-        if (!hasPermissions(this, PERMISSIONS)) {
-            Toast.makeText(this, "in1", Toast.LENGTH_SHORT).show();
-            if(userType == "resident"){
-                Toast.makeText(this, "in11", Toast.LENGTH_SHORT).show();
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,  Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    // User has denied the permission but hasn't checked "Never ask again"
-                    ActivityCompat.requestPermissions(this, PERMISSIONS, LOCATION_PERMISSION_REQUEST_CODE);
-                    //Toast.makeText(this, "Location permission is denied", Toast.LENGTH_SHORT).show()
-                    return false;
-                } else {
-
-                    // User has denied the permission and checked "Never ask again"
-                    showPermissionDeniedAlert("Location Permission","To continue, please enable the location permission in the app settings.","settings","Open App Settings");
-                    return false;
-                }
-
-            } else if(userType == "responder"){
-                Toast.makeText(this, "in12", Toast.LENGTH_SHORT).show();
-//                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-//                    // Show an AlertDialog to guide the user to enable "Allow all the time"
-//                    ActivityCompat.requestPermissions(MainActivity.this,
-//                            new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-//                            PERMISSIONS_REQUEST_BACKGROUND_LOCATION);
-//                    return false;
-//                } else {
-//
-//                    // User has denied the permission and checked "Never ask again"
-//                    showPermissionDeniedAlert("Location Permission","To continue, please set location permission to allow all the time.","settings","Open App Settings");
-//                    return false;
-//                }
-
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,  Manifest.permission.ACCESS_FINE_LOCATION)) {
-                    // User has denied the permission but hasn't checked "Never ask again"
-                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, PERMISSIONS_REQUEST_BACKGROUND_LOCATION);
-                    //Toast.makeText(this, "Location permission is denied", Toast.LENGTH_SHORT).show()
-                    return false;
-                } else {
-
-                    // User has denied the permission and checked "Never ask again"
-                    showPermissionDeniedAlert("Location Permission","To continue, please enable the location permission in the app settings.","settings","Open App Settings");
-                    return false;
-                }
-            }
+        String[] RESPONDER_PERMISSIONS = {
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+        };
+        if (userType.equals("resident")) {
+            if (!hasPermissions(this, RESIDENT_PERMISSIONS)) {
 
 
-        } else {
-            Toast.makeText(this, "in2", Toast.LENGTH_SHORT).show();
-            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
-                //Toast.makeText(this, "Location services are not enabled", Toast.LENGTH_SHORT).show();
-                showPermissionDeniedAlert("Location Disabled","To continue, kindly turn on your device location.","location", "Open Location Settings");
+                    Toast.makeText(this, "insider resi", Toast.LENGTH_SHORT).show();
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+                        Toast.makeText(this, "in111", Toast.LENGTH_SHORT).show();
+                        // User has denied the permission but hasn't checked "Never ask again"
+                        ActivityCompat.requestPermissions(this, RESIDENT_PERMISSIONS, LOCATION_PERMISSION_REQUEST_CODE);
+                        //Toast.makeText(this, "Location permission is denied", Toast.LENGTH_SHORT).show()
+                        return false;
+                    } else {
+                        Toast.makeText(this, "in112", Toast.LENGTH_SHORT).show();
+                        // User has denied the permission and checked "Never ask again"
+                        showAlert("Location Permission", "To continue, please enable the location permission in the app settings.", "settings", "Open App Settings");
+                        return false;
+                    }
 
-                return false;
+
+
             } else {
-                return true;
+                return isLocationOn();
             }
+
+        }
+        if (userType.equals("responder")) {
+            if (!hasPermissions(this, RESPONDER_PERMISSIONS)) {
+                Toast.makeText(this, userType + "", Toast.LENGTH_SHORT).show();
+
+                    Toast.makeText(this, "insider respo", Toast.LENGTH_SHORT).show();
+            //        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+//                    Toast.makeText(this, "in121", Toast.LENGTH_SHORT).show();
+                    // User has denied the permission but hasn't checked "Never ask again"
+                   // ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, PERMISSIONS_REQUEST_BACKGROUND_LOCATION);
+
+                    //Toast.makeText(this, "Location permission is denied", Toast.LENGTH_SHORT).show()
+//                    return false;
+//                         } else {
+                        Toast.makeText(this, "in123", Toast.LENGTH_SHORT).show();
+                        // User has denied the permission and checked "Never ask again"
+                showAlert("Location Permission", "To continue, please enable the location permission in the app settings and set it to  \"Allow all the time\".", "settings", "Open App Settings");
+//
+                        return false;
+                   // }
+
+
+
+            } else {
+                return isLocationOn();
+            }
+
         }
         return false;
+    }
+    @JavascriptInterface
+    public boolean isLocationOn() {
+
+                Toast.makeText(this, "in2", Toast.LENGTH_SHORT).show();
+                LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
+                    //Toast.makeText(this, "Location services are not enabled", Toast.LENGTH_SHORT).show();
+                    showAlert("Location Disabled", "To continue, kindly turn on your device location.", "location", "Open Location Settings");
+
+                    return false;
+                } else {
+                    return true;
+                }
+
     }
 
 

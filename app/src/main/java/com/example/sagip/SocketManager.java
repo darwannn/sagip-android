@@ -38,7 +38,7 @@ public class SocketManager {
         }
     }
 
-    public static void emitLocationEvent(String residentUserId,double latitude, double longitude) {
+    public static void emitLocationEvent(String residentUserId,double latitude, double longitude, String assistanceReqId) {
         Socket socket = getSocket();
         if (socket != null && socket.connected()) {
             try {
@@ -47,6 +47,7 @@ public class SocketManager {
                 jsonBodySocket.put("event", "location");
 
                         JSONObject contentJson = new JSONObject();
+                contentJson.put("assistanceReqId", assistanceReqId);
                         contentJson.put("latitude", latitude);
                         contentJson.put("longitude", longitude);
 

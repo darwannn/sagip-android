@@ -42,7 +42,7 @@ public class ForegroundService extends Service {
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
 
-    String residentUserId = "";
+    String residentUserId,assistanceReqId = "";
     @Override
     public void onCreate() {
         super.onCreate();
@@ -52,7 +52,7 @@ public class ForegroundService extends Service {
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         residentUserId =  intent.getStringExtra("residentUserId");
-
+        assistanceReqId =  intent.getStringExtra("assistanceReqId");
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, buildNotification());
 
@@ -139,7 +139,7 @@ public class ForegroundService extends Service {
                     Log.d(TAG, "longitude " + longitude);
 
 
-                        SocketManager.emitLocationEvent(residentUserId, latitude,longitude);
+                        SocketManager.emitLocationEvent(residentUserId, latitude,longitude, assistanceReqId);
 
                         new Handler(Looper.getMainLooper()).post(() -> {
                             Toast.makeText(ForegroundService.this, "Lat: " + latitude + " Lng: " + longitude, Toast.LENGTH_SHORT).show();

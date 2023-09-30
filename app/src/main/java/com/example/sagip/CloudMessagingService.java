@@ -35,12 +35,12 @@ public class CloudMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         showNotification(remoteMessage.getNotification().getTitle(),remoteMessage.getNotification().getBody(),  remoteMessage.getData().get("linkId"));
-       // Toast.makeText(this, ""+remoteMessage, Toast.LENGTH_LONG).show();
+      
 
     }
 
     private void showNotification(String title,String message, String linkId){
-      //  Toast.makeText(this, "3", Toast.LENGTH_LONG).show();
+
         String webpageUrl = "https://sagip.vercel.app/";
 
         Intent intent = new Intent(this, MainActivity.class);
