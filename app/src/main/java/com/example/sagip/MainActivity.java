@@ -1,7 +1,6 @@
 package com.example.sagip;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -14,18 +13,15 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -54,40 +50,20 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.pusher.client.Pusher;
-import com.pusher.client.channel.Channel;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import io.socket.client.IO;
-import io.socket.client.Socket;
 
 public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_BACKGROUND_LOCATION = 1006;
@@ -151,9 +127,9 @@ public class MainActivity extends AppCompatActivity {
         startButton = findViewById(R.id.start_button);
         stopButton = findViewById(R.id.stop_button);
 
-        String retrievedMyToken = PersistenceStorage.getFromPersistenceStorage(this, "myToken");
-        String retrievedUserId = PersistenceStorage.getFromPersistenceStorage(this, "userId");
-        String retrievedAssistanceReqId = PersistenceStorage.getFromPersistenceStorage(this, "assistanceReqId");
+        String retrievedMyToken = PersistentStorage.getFromPersistentStorage(this, "myToken");
+        String retrievedUserId = PersistentStorage.getFromPersistentStorage(this, "userId");
+        String retrievedAssistanceReqId = PersistentStorage.getFromPersistentStorage(this, "assistanceReqId");
         if (!TextUtils.isEmpty(retrievedUserId) && !TextUtils.isEmpty(retrievedAssistanceReqId)) {
             startSharingLocation(retrievedMyToken,retrievedUserId,retrievedAssistanceReqId);
 
@@ -670,7 +646,7 @@ public class MainActivity extends AppCompatActivity {
                 serviceIntent.putExtra("residentUserId", userId);
                 serviceIntent.putExtra("assistanceReqId", assistanceReqId);
                 startService(serviceIntent);
-                PersistenceStorage.saveToPersistenceStorage(this, myToken, userId, assistanceReqId);
+                PersistentStorage.saveToPersistentStorage(this, myToken, userId, assistanceReqId);
             } else {
                 Toast.makeText(this, "Service is already running", Toast.LENGTH_SHORT).show();
             }
@@ -682,7 +658,7 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         stopService(serviceIntent);
-        PersistenceStorage.clearPersistenceStorage(this);
+        PersistentStorage.clearPersistentStorage(this);
     }
     private void showAlert(String title, String message, String intentType, String buttonText) {
         CustomDialog.showAlertDialog(this, title, message,
