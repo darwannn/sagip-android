@@ -37,15 +37,24 @@ public class CloudMessagingService extends FirebaseMessagingService {
         showNotification(remoteMessage.getNotification().getTitle(),remoteMessage.getNotification().getBody(),  remoteMessage.getData().get("linkId"));
     }
 
-    private void showNotification(String title,String message, String linkId){
+    private void showNotification(String title, String message, String linkId) {
         String webpageUrl = "https://sagip.vercel.app/";
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(KEY_URL, webpageUrl);
+
+        // Add these flags to clear the previous task and start a new one
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        // Add a custom action to finish the MainActivity
+        intent.setAction("com.example.sagip.FINISH_ACTIVITY");
+
+        // Set transition animation to null
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-
                 .setContentTitle(linkId)
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)

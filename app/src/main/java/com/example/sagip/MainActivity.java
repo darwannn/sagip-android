@@ -143,6 +143,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         SocketManager.connectSocket();
 
         networkStateChangeReceiver = new NetworkReceiver();
@@ -336,6 +338,8 @@ public class MainActivity extends AppCompatActivity {
         if (url != null && !url.isEmpty()) {
             sagipWebView.loadUrl(url);
         }
+
+        sagipWebView.loadUrl("https://sagip.me");
 
     }
 
@@ -848,5 +852,20 @@ public class MainActivity extends AppCompatActivity {
             mediaPlayer = null;
         }
         isPlaying = false;
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleNotificationAction(intent);
+    }
+
+    private void handleNotificationAction(Intent intent) {
+        if (intent != null && intent.getAction() != null) {
+            if (intent.getAction().equals("com.example.sagip.FINISH_ACTIVITY")) {
+                // Finish the MainActivity
+                finish();
+            }
+        }
     }
 }

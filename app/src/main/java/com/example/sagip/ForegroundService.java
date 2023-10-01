@@ -89,11 +89,18 @@ public class ForegroundService extends Service {
     }
 
     private Notification buildNotification() {
-
         String webpageUrl = "https://google.com";
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(KEY_URL, webpageUrl);
+
+        // Add these flags to clear the previous task and start a new one
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        // Add a custom action to finish the MainActivity
+        intent.setAction("com.example.sagip.FINISH_ACTIVITY");
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
@@ -103,19 +110,13 @@ public class ForegroundService extends Service {
                 .setContentIntent(pendingIntent)
                 .setOnlyAlertOnce(true)
                 .setNumber(0);
+
         builder.setSmallIcon(R.drawable.sagip_status_bar_icon);
-    //    if (isDarkModeEnabled()) {
-       //    builder.setSmallIcon(R.drawable.sagip_white);
-   //         builder.setSmallIcon(R.drawable.sagip_icon);
-      //  } else {
-      //     builder.setSmallIcon(R.drawable.sagip_black);
-         //   builder.setSmallIcon(R.drawable.sagip_icon);
-     //   }
 
         return builder.build();
-
-
     }
+
+
 
 //    private boolean isDarkModeEnabled() {
 //        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
