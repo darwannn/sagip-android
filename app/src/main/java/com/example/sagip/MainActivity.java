@@ -326,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
             sagipWebView.loadUrl(url);
         }
 
-        sagipWebView.loadUrl("https://sagip.me");
+        sagipWebView.loadUrl("https://sagip.vercel.app");
 
     }
 
