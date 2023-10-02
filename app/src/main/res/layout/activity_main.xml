@@ -6,7 +6,55 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".MainActivity">
+    <RelativeLayout
+        android:id="@+id/onBoardingLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="visible"
+        tools:context=".OnboardingActivtiy"
+        >
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/sagip_onboarding" />
+
+        <ImageView
+            android:id="@+id/logoImageView"
+            android:layout_width="170dp"
+            android:layout_height="170dp"
+            android:src="@drawable/sagip_onboarding_logo"
+            android:layout_centerInParent="true" />
+
+        <ImageView
+            android:id="@+id/textImageView"
+            android:layout_width="130dp"
+            android:layout_height="130dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/sagip_onboarding_text" />
+
+        <ProgressBar
+            style="?android:attr/progressBarStyle"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:indeterminateDrawable="@drawable/progress_color"
+            android:indeterminateDuration="@integer/material_motion_duration_long_1"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="130dp" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/mainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:context=".MainActivity">
     <EditText
         android:id="@+id/searchBar"
         android:layout_width="match_parent"
@@ -39,5 +87,5 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
-
+    </LinearLayout>
 </LinearLayout>

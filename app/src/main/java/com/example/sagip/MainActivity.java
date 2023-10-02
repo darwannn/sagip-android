@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.location.LocationManagerCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -35,6 +36,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
@@ -47,6 +49,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
     private ConnectivityManager connectivityManager;
     private AudioManager audioManager;
     private WebView sagipWebView;
+    private LinearLayout mainLayout;
+    private RelativeLayout onBoardingLayout;
     private EditText searchBar;
 
     private static final String TAG = "PushNotification";
@@ -174,7 +180,8 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         }
 
-
+        mainLayout = findViewById(R.id.mainLayout);
+        onBoardingLayout = findViewById(R.id.onBoardingLayout);
         sagipWebView = findViewById(R.id.sagipWebView);
         WebSettings webSettings = sagipWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -291,6 +298,10 @@ public class MainActivity extends AppCompatActivity {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 view.clearCache(true);
+                onBoardingLayout.setVisibility(View.GONE);
+                mainLayout.setVisibility(View.VISIBLE);
+//                AnimationUtils.applyFadeAnimation(onBoardingLayout, 0);
+//                AnimationUtils.applyFadeAnimation(mainLayout, 1);
             }
 
         });
@@ -844,4 +855,5 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
 }
