@@ -207,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setAllowContentAccess(true);
         sagipWebView.addJavascriptInterface(MainActivity.this, "AndroidInterface");
 
-
         sagipWebView.setWebChromeClient(new WebChromeClient() {
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
                 if (!isCameraEnabled()) {
