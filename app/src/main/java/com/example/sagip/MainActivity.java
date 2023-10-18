@@ -427,6 +427,20 @@ public class MainActivity extends AppCompatActivity {
         unregisterReceiver(networkStateChangeReceiver);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+        sagipWebView.saveState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState)
+    {
+        super.onRestoreInstanceState(savedInstanceState);
+        sagipWebView.restoreState(savedInstanceState);
+    }
+
     // Handle permission request results
     @Override
     public void onRequestPermissionsResult(int requestCode,
