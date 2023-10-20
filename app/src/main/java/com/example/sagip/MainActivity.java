@@ -369,7 +369,7 @@ public class MainActivity extends AppCompatActivity {
             sagipWebView.loadUrl(url);
         }
 
-        sagipWebView.loadUrl("https://sagip.vercel.app");
+        sagipWebView.loadUrl("https://www.sagip.live/");
 
     }
 
@@ -896,6 +896,11 @@ public class MainActivity extends AppCompatActivity {
             mediaPlayer = null;
         }
         isPlaying = false;
+    }
+
+    @JavascriptInterface
+    public boolean isInSAGIPApp() {
+        return true;
     }
 
     @Override

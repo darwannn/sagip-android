@@ -89,7 +89,7 @@ public class ForegroundService extends Service {
     }
 
     private Notification buildNotification() {
-        String webpageUrl = "https://google.com";
+        String webpageUrl = "https://www.sagip.live/responder/emergency-reports";
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(KEY_URL, webpageUrl);

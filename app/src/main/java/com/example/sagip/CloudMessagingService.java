@@ -38,7 +38,7 @@ public class CloudMessagingService extends FirebaseMessagingService {
     }
 
     private void showNotification(String title, String message, String linkId) {
-        String webpageUrl = "https://sagip.vercel.app/";
+        String webpageUrl = "https://www.sagip.live/";
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(KEY_URL, webpageUrl);
