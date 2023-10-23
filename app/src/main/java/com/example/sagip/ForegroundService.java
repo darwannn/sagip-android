@@ -143,7 +143,7 @@ public class ForegroundService extends Service {
                         SocketManager.emitLocationEvent(residentUserId, latitude,longitude, assistanceReqId);
 
                         new Handler(Looper.getMainLooper()).post(() -> {
-                            Toast.makeText(ForegroundService.this, "Lat: " + latitude + " Lng: " + longitude, Toast.LENGTH_SHORT).show();
+                           // Toast.makeText(ForegroundService.this, "Lat: " + latitude + " Lng: " + longitude, Toast.LENGTH_SHORT).show();
                         });
 
                 }

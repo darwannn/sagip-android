@@ -38,18 +38,12 @@ public class CloudMessagingService extends FirebaseMessagingService {
     }
 
     private void showNotification(String title, String message, String linkId) {
-        String webpageUrl = "https://www.sagip.live/";
+        String webpageUrl = "https://www.sagip.live/notification";
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(KEY_URL, webpageUrl);
-
-        // Add these flags to clear the previous task and start a new one
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        // Add a custom action to finish the MainActivity
         intent.setAction("com.example.sagip.FINISH_ACTIVITY");
-
-        // Set transition animation to null
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -59,11 +53,14 @@ public class CloudMessagingService extends FirebaseMessagingService {
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
-                .setAutoCancel(true);
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.sagip_status_bar_icon)
+                // Add BigTextStyle for expandable notification
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(message)); // Use the message as the expanded text
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        builder.setSmallIcon(R.drawable.sagip_status_bar_icon);
         notificationManager.notify(1, builder.build());
     }
+
 
 }

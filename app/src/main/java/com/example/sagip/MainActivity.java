@@ -341,8 +341,17 @@ public class MainActivity extends AppCompatActivity {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 view.clearCache(true);
-                onBoardingLayout.setVisibility(View.GONE);
-                mainLayout.setVisibility(View.VISIBLE);
+//                onBoardingLayout.setVisibility(View.GONE);
+//                mainLayout.setVisibility(View.VISIBLE);
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        onBoardingLayout.setVisibility(View.GONE);
+                        mainLayout.setVisibility(View.VISIBLE);
+                    }
+                }, 3000);
+
 //                AnimationUtils.applyFadeAnimation(onBoardingLayout, 0);
 //                AnimationUtils.applyFadeAnimation(mainLayout, 1);
             }
@@ -709,7 +718,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (!isServiceRunning(ForegroundService.class)) {
 
-                Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
+               // Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
                 Intent serviceIntent = new Intent(this, ForegroundService.class);
                 serviceIntent.putExtra("residentUserId", userId);
                 serviceIntent.putExtra("assistanceReqId", assistanceReqId);
@@ -723,7 +732,7 @@ public class MainActivity extends AppCompatActivity {
 
     @JavascriptInterface
     public void stopSharingLocation() {
-        Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
+       // Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         stopService(serviceIntent);
         PersistentStorage.clearPersistentStorage(this);
