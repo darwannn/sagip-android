@@ -187,6 +187,8 @@ public class MainActivity extends AppCompatActivity {
         onBoardingLayout = findViewById(R.id.onBoardingLayout);
         sagipWebView = findViewById(R.id.sagipWebView);
         WebSettings webSettings = sagipWebView.getSettings();
+        webSettings.setBuiltInZoomControls(false);
+        webSettings.setDisplayZoomControls(false);
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
 
@@ -376,9 +378,11 @@ public class MainActivity extends AppCompatActivity {
         String url = getIntent().getStringExtra(ForegroundService.KEY_URL);
         if (url != null && !url.isEmpty()) {
             sagipWebView.loadUrl(url);
+        } else {
+            sagipWebView.loadUrl("https://www.sagip.live/");
+
         }
 
-        sagipWebView.loadUrl("https://www.sagip.live/");
 
     }
 
@@ -678,8 +682,8 @@ public class MainActivity extends AppCompatActivity {
     public void routeTo(String lat, String lng) {
         String latitude = lat;
         String longitude = lng;
-        latitude = "14.8527";
-        longitude = "120.8160";
+       // latitude = "14.8527";
+       // longitude = "120.8160";
         Uri gmmIntentUri = Uri.parse("google.navigation:q=" + latitude + "," + longitude);
 
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);

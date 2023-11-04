@@ -46,7 +46,9 @@ public class CloudMessagingService extends FirebaseMessagingService {
         intent.setAction("com.example.sagip.FINISH_ACTIVITY");
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        int uniqueNotificationId = (int) System.currentTimeMillis();
+       PendingIntent pendingIntent = PendingIntent.getActivity(this, uniqueNotificationId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle(title)
@@ -59,7 +61,7 @@ public class CloudMessagingService extends FirebaseMessagingService {
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(message)); // Use the message as the expanded text
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.notify(1, builder.build());
+          notificationManager.notify(uniqueNotificationId, builder.build());
     }
 
 

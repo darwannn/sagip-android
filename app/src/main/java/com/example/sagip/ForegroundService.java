@@ -54,7 +54,9 @@ public class ForegroundService extends Service {
         residentUserId =  intent.getStringExtra("residentUserId");
         assistanceReqId =  intent.getStringExtra("assistanceReqId");
         createNotificationChannel();
-        startForeground(NOTIFICATION_ID, buildNotification());
+
+        int uniqueNotificationId = (int) System.currentTimeMillis();
+        startForeground(uniqueNotificationId, buildNotification());
 
         sendLocationUpdate();
         return START_STICKY;
@@ -89,7 +91,7 @@ public class ForegroundService extends Service {
     }
 
     private Notification buildNotification() {
-        String webpageUrl = "https://www.sagip.live/responder/emergency-reports";
+        String webpageUrl = "https://www.sagip.live/responder/";
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(KEY_URL, webpageUrl);
@@ -105,7 +107,7 @@ public class ForegroundService extends Service {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("SAGIP")
-                .setContentText("Running...")
+                .setContentText("Your location is being shared...")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setOnlyAlertOnce(true)
