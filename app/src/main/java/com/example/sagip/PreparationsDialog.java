@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat;
 
 public class PreparationsDialog {
     public static MainActivity mainActivity;
+    public static Boolean locationOnUpdate, locationEnabledUpdate, cameraEnabledUpdate =  false;
     private static AlertDialog currentDialog;
     public interface OnPositiveButtonClickListener {
         void onPositiveButtonClick();
@@ -80,15 +81,25 @@ public class PreparationsDialog {
         prePositiveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Toast.makeText(activity, "Click", Toast.LENGTH_SHORT).show();
                 if(!(action.equals("onLoad")) ){
-                    if(locationOn && locationEnabled && locationEnabled) {
+                    if(locationOnUpdate && locationEnabledUpdate && cameraEnabledUpdate) {
+                        prePositiveButton.setEnabled(true);
                         prePositiveButton.setBackgroundResource(R.drawable.rounded_button);
+                       // Toast.makeText(activity, "activity", Toast.LENGTH_SHORT).show();
+                        if (mainActivity != null) {
+                            //Toast.makeText(activity, "activity1", Toast.LENGTH_SHORT).show();
+                            activity.changeWebViewUrl("https://www.sagip.me/emergency-reports");
+                        }
                     }else {
+                        //Toast.makeText(activity, "elseeee", Toast.LENGTH_SHORT).show();
+                        prePositiveButton.setEnabled(false);
                         prePositiveButton.setBackgroundResource(R.drawable.rounded_button_disabled);
                     }
-                    prePositiveButton.setText("Close");
-                    preNegativeButton.setVisibility(View.GONE);
+                    dialog.dismiss();
                 } else {
+                    //Toast.makeText(activity, "else", Toast.LENGTH_SHORT).show();
+                    prePositiveButton.setEnabled(false);
                     dialog.dismiss();
                 }
 
@@ -151,19 +162,24 @@ public class PreparationsDialog {
 
             if (locationDisabledArrow != null && locationDisabledCheck != null) {
                 if (locationOn) {
+                    locationOnUpdate = true;
                     locationDisabledArrow.setVisibility(View.GONE);
                     locationDisabledCheck.setVisibility(View.VISIBLE);
                 } else {
+                    locationOnUpdate = false;
                     locationDisabledArrow.setVisibility(View.VISIBLE);
                     locationDisabledCheck.setVisibility(View.GONE);
                 }
             }
 
             if (cameraPermissionArrow != null && cameraPermissionCheck != null) {
+
                 if (cameraEnabled) {
+                    cameraEnabledUpdate = true;
                     cameraPermissionArrow.setVisibility(View.GONE);
                     cameraPermissionCheck.setVisibility(View.VISIBLE);
                 } else {
+                    cameraEnabledUpdate = false;
                     cameraPermissionArrow.setVisibility(View.VISIBLE);
                     cameraPermissionCheck.setVisibility(View.GONE);
                 }
@@ -171,9 +187,11 @@ public class PreparationsDialog {
 
             if (locationPermissionArrow != null && locationPermissionCheck != null) {
                 if (locationEnabled) {
+                    locationEnabledUpdate = true;
                     locationPermissionArrow.setVisibility(View.GONE);
                     locationPermissionCheck.setVisibility(View.VISIBLE);
                 } else {
+                    locationEnabledUpdate = false;
                     locationPermissionArrow.setVisibility(View.VISIBLE);
                     locationPermissionCheck.setVisibility(View.GONE);
                 }
@@ -182,8 +200,10 @@ public class PreparationsDialog {
             Button prePositiveButton = currentDialog.findViewById(R.id.prePositiveButton);
             if (prePositiveButton != null) {
                 if (locationOn && locationEnabled && cameraEnabled) {
+                    prePositiveButton.setEnabled(true);
                     prePositiveButton.setBackgroundResource(R.drawable.rounded_button);
                 } else {
+                    prePositiveButton.setEnabled(false);
                     prePositiveButton.setBackgroundResource(R.drawable.rounded_button_disabled);
                 }
             }

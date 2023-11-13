@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         SocketManager.connectSocket();
         //isLocationEnabled("onLoad");
 
-            permissionPreparation("onLoadd");
+            permissionPreparation("onLoad");
 
         networkStateChangeReceiver = new NetworkReceiver();
         startButton = findViewById(R.id.start_button);
@@ -394,6 +394,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void changeWebViewUrl(String newUrl) {
+        sagipWebView.loadUrl(newUrl);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
@@ -524,20 +528,20 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, handle camera-related tasks
             } else {
-                PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
+               // PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
             }
         } else if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, handle notification-related tasks
             } else {
-                PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
+               // PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
 
             }
         } else if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, handle location-related tasks
             } else {
-                PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
+               // PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
 
             }
         }
@@ -920,14 +924,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @JavascriptInterface
-    public void permissionPreparation (String action) {
+    public boolean permissionPreparation (String action) {
 
-        if(!isLocationEnabled("false","resident") || !isCameraEnabled("false") || !isLocationOn("false")) {
+        if (!isLocationEnabled("false", "resident") || !isCameraEnabled("false") || !isLocationOn("false")) {
 
             PreparationsDialog.showAlertDialog(this, action, isLocationEnabled("false", "resident"), isCameraEnabled("false"), isLocationOn("false"));
-
+            return false;
+        } else {
+            return true;
         }
-        }
+    }
 
 
 
