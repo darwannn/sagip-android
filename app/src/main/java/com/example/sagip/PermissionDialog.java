@@ -9,20 +9,23 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class CustomDialog {
+public class PermissionDialog {
 
     public interface OnPositiveButtonClickListener {
         void onPositiveButtonClick();
     }
 
     public static void showAlertDialog(Activity activity, String title, String message, String intentType, String positiveButtonText, final OnPositiveButtonClickListener positiveButtonClickListener) {
-        View view = LayoutInflater.from(activity).inflate(R.layout.custom_dialog_layout, null);
-        ImageView imageView = view.findViewById(R.id.imageView);
+        View view = LayoutInflater.from(activity).inflate(R.layout.permission_dialog_layout, null);
+//        ImageView imageView = view.findViewById(R.id.imageView);
 
-        TextView customTitleTextView = view.findViewById(R.id.customTitleTextView);
-        TextView messageTextView = view.findViewById(R.id.messageTextView);
-        customTitleTextView.setText(title);
-        messageTextView.setText(message);
+        TextView perTitleTextView = view.findViewById(R.id.perTitleTextView);
+        TextView perMessageTextView = view.findViewById(R.id.perMessageTextView);
+        Button perPositiveButton = view.findViewById(R.id.perPositiveButton);
+        Button perNegativeButton = view.findViewById(R.id.perNegativeButton);
+
+        perTitleTextView.setText(title);
+        perMessageTextView.setText(message);
 
 
 //        if ("Camera Permission".equals(title)) {
@@ -33,10 +36,9 @@ public class CustomDialog {
 //            imageView.setImageResource(R.drawable.fire_truck);
 //        }
 
-        Button positiveButton = view.findViewById(R.id.positiveButton);
-        Button negativeButton = view.findViewById(R.id.negativeButton);
-        positiveButton.setText(positiveButtonText);
-        negativeButton.setText("Cancel");
+
+        perPositiveButton.setText(positiveButtonText);
+        perNegativeButton.setText("Cancel");
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setView(view);
@@ -49,7 +51,7 @@ public class CustomDialog {
         dialog.setCanceledOnTouchOutside(false);
 
 
-        positiveButton.setOnClickListener(new View.OnClickListener() {
+        perPositiveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (positiveButtonClickListener != null) {
@@ -58,7 +60,7 @@ public class CustomDialog {
                 dialog.dismiss();
             }
         });
-        negativeButton.setOnClickListener(new View.OnClickListener() {
+        perNegativeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();

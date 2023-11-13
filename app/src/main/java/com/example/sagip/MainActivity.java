@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.location.LocationManagerCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -38,7 +37,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
@@ -76,8 +74,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_BACKGROUND_LOCATION = 1006;
     private static final int CAMERA_PERMISSION_REQUEST = 300;
 
-public Boolean isLocationEnabled = false;
-public Boolean isCameraEnabled= false;
     private NetworkReceiver networkStateChangeReceiver;
     private MediaPlayer mediaPlayer;
     private boolean isPlaying = false;
@@ -138,7 +134,9 @@ public Boolean isCameraEnabled= false;
 
         SocketManager.connectSocket();
         //isLocationEnabled("onLoad");
-        permissionPreparation();
+
+            permissionPreparation("onLoadd");
+
         networkStateChangeReceiver = new NetworkReceiver();
         startButton = findViewById(R.id.start_button);
         stopButton = findViewById(R.id.stop_button);
@@ -522,25 +520,25 @@ public Boolean isCameraEnabled= false;
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
-            PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
+
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, handle camera-related tasks
             } else {
-                // Permission denied, handle accordingly
+                PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
             }
         } else if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
-            PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, handle notification-related tasks
             } else {
-                // Permission denied, handle accordingly
+                PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
+
             }
         } else if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+           if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, handle location-related tasks
             } else {
-                // Permission denied, handle accordingly
+                PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
+
             }
         }
     }
@@ -762,8 +760,8 @@ public Boolean isCameraEnabled= false;
         PersistentStorage.clearPersistentStorage(this);
     }
     private void showAlert(String title, String message, String intentType, String buttonText) {
-        CustomDialog.showAlertDialog(this, title, message,intentType,
-                buttonText, new CustomDialog.OnPositiveButtonClickListener() {
+        PermissionDialog.showAlertDialog(this, title, message,intentType,
+                buttonText, new PermissionDialog.OnPositiveButtonClickListener() {
                     @Override
                     public void onPositiveButtonClick() {
                         if(intentType.equals("settings") ) {
@@ -789,17 +787,17 @@ public Boolean isCameraEnabled= false;
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.CAMERA)) {
 
                 ActivityCompat.requestPermissions(this, PERMISSIONS, CAMERA_PERMISSION_REQUEST_CODE);
-                isCameraEnabled = false;
+
                 return false;
             } else {
                 if(showAlert.equals("true")) {
                     showAlert("Camera Permission", "To continue, please enable the camera permission in the app settings", "settings", "Open App Settings");
                 }
-                isCameraEnabled = false;
+
                 return false;
             }
         } else {
-            isCameraEnabled = true;
+
             return true;
         }
     }
@@ -850,28 +848,22 @@ public Boolean isCameraEnabled= false;
     }
     @JavascriptInterface
     public boolean isLocationOn( String showAlert) {
-      //  Toast.makeText(this, "d"+showAlert, Toast.LENGTH_SHORT).show();
 
-                LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
 
-                   String alertMessage = "";
-//                   if(userType.equals("onLoad")) {
-//                       if(showAlert) {
-//                           showAlert("Location Disabled", "Some of our features require access to your device’s location, for better experience kindly turn on your device location.", "location", "Open Location Settings");
-//                       }
-//                   }else {
-                       if(showAlert.equals("true")) {
-                       showAlert("Location Disabled", "To continue, kindly turn on your device location.", "location", "Open Location Settings");
-                   }
-//                   }
+            if (showAlert.equals("true")) {
+                showAlert("Location Disabled", "To continue, kindly turn on your device location.", "location", "Open Location Settings");
+            }
 
-                    return false;
-                } else {
 
-                    return true;
-                }
+            return false;
+        } else {
+
+            return true;
+        }
     }
+
 
 
     @JavascriptInterface
@@ -928,10 +920,14 @@ public Boolean isCameraEnabled= false;
     }
 
     @JavascriptInterface
-    public void permissionPreparation () {
-//        if(!isLocationEnabled("resident") || !isCameraEnabled())
-        PreparationsDialog.showAlertDialog(this,isLocationEnabled("false","resident"),isCameraEnabled("false"), isLocationOn("false"));
-    }
+    public void permissionPreparation (String action) {
+
+        if(!isLocationEnabled("false","resident") || !isCameraEnabled("false") || !isLocationOn("false")) {
+
+            PreparationsDialog.showAlertDialog(this, action, isLocationEnabled("false", "resident"), isCameraEnabled("false"), isLocationOn("false"));
+
+        }
+        }
 
 
 

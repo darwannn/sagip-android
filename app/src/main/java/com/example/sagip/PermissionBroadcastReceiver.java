@@ -6,7 +6,7 @@ import android.location.LocationManager;
 import android.widget.Toast;
 
 public class PermissionBroadcastReceiver extends BroadcastReceiver {
-    public Boolean isLocationOn = false;
+
    public MainActivity mainActivity;
     public PermissionBroadcastReceiver() {
 
@@ -29,11 +29,6 @@ public void onReceive(Context context, Intent intent) {
 
 }
 
-
-
-    private void showToast(Context context, String message) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-    }
 
 
 }

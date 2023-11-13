@@ -18,9 +18,9 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="#293B95"
-        android:text="TEXT"
-        android:textSize="30dp"
-
+        android:text="APP SETTINGS"
+        android:textSize="22dp"
+        android:layout_marginBottom="10dp"
         android:layout_gravity="center"
         android:fontFamily="@font/poppins_b"
         />
@@ -36,142 +36,259 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="#000000"
-        android:text="Some of our features require access to your device’s location and camera, for better experience kindly allow the necessaryu permission and turn on your device location"
-        android:textSize="12dp"
+        android:textColor="#333333"
+        android:text="Some of our features require access to your device’s location and camera. For a better experience, kindly do the following:"
+        android:textSize="14dp"
         android:layout_gravity="center"
         android:fontFamily="@font/poppins_r"
+        android:lineSpacingExtra="-3dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
         />
 
 
 
 
     <LinearLayout
-        android:id="@+id/locationPermissionLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="10dp"
-        >
-
-        <ImageView
-
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center_horizontal"
-            android:background="@drawable/circle"
-            android:src="@drawable/ic_baseline_location_on_24"
-            android:padding="5dp"/>
-
-        <TextView
-
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="#000000"
-            android:textSize="16dp"
-            android:text="Grant Location Permission"
-
-            android:fontFamily="@font/poppins_r"
-            />
-        <Button
-            android:id="@+id/locationPermissionButton"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-
-            android:textColor="#000000"
-            android:background="@drawable/rounded_button"
-            android:fontFamily="@font/poppins_sb"
-            android:text="OKAY" />
-    </LinearLayout>
-
-    <LinearLayout
         android:id="@+id/cameraPermissionLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="10dp"
-        >
+        android:orientation="vertical"
+     >
 
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center_horizontal"
-            android:background="@drawable/circle"
-            android:src="@drawable/ic_baseline_location_on_24"
-            android:padding="8dp"/>
-
-        <TextView
-
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="#000000"
-            android:textSize="16dp"
-            android:text="Grant Camera Permission"
-
-            android:fontFamily="@font/poppins_r"
-            />
-        <Button
+        <LinearLayout
             android:id="@+id/cameraPermissionButton"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-            android:textColor="#000000"
-            android:background="@drawable/rounded_button"
-            android:fontFamily="@font/poppins_sb"
-            android:text="OKAY" />
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/circle"
+                android:src="@drawable/ic_baseline_camera_alt_24"
+
+                android:padding="5dp"/>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#000000"
+                android:textSize="15dp"
+
+                android:text="Grant Camera Permission"
+
+                android:fontFamily="@font/poppins_r"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="#333333"
+                    android:textSize="12dp"
+                    android:text="Allows you to find your location with ease"
+                    android:layout_marginTop="-5dp"
+                    android:fontFamily="@font/poppins_r"/>
+            </LinearLayout>
+            <ImageView
+                android:id="@+id/cameraPermissionArrow"
+                android:layout_width="27dp"
+                android:layout_height="27dp"
+                android:layout_gravity="center_horizontal"
+
+                android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
+               />
+            <ImageView
+                android:id="@+id/cameraPermissionCheck"
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:layout_gravity="center_horizontal"
+                android:visibility="gone"
+                android:background="@drawable/circle"
+                android:src="@drawable/ic_baseline_check_24"
+                android:padding="3dp"
+                />
+        </LinearLayout>
+
+
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/locationPermissionLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="5dp"
+        >
+
+        <LinearLayout
+            android:id="@+id/locationPermissionButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/circle"
+                android:src="@drawable/ic_baseline_location_on_24"
+
+                android:padding="4dp"/>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="#000000"
+                    android:textSize="15dp"
+
+                    android:text="Grant Location Permission"
+
+                    android:fontFamily="@font/poppins_r"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="#333333"
+                    android:textSize="12dp"
+                    android:text="Allows you to capture proof for your hazard reports and emergency requests"
+                    android:layout_marginTop="-5dp"
+                    android:fontFamily="@font/poppins_r"/>
+
+            </LinearLayout>
+            <ImageView
+                android:id="@+id/locationPermissionArrow"
+                android:layout_width="27dp"
+                android:layout_height="27dp"
+                android:layout_gravity="center_horizontal"
+
+                android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
+                />
+            <ImageView
+                android:id="@+id/locationPermissionCheck"
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:layout_gravity="center_horizontal"
+                android:visibility="gone"
+                android:background="@drawable/circle"
+                android:src="@drawable/ic_baseline_check_24"
+                android:padding="3dp"
+                />
+        </LinearLayout>
+
+
+    </LinearLayout>
     <LinearLayout
         android:id="@+id/locationDisabledLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+        android:layout_marginTop="5dp"
         >
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center_horizontal"
-            android:background="@drawable/circle"
-            android:src="@drawable/ic_baseline_location_on_24"
-            android:padding="8dp"/>
-
-        <TextView
-            android:id="@+id/messageTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="#000000"
-            android:textSize="16dp"
-            android:text="Open Location"
-
-            android:fontFamily="@font/poppins_r"
-            />
-        <Button
+        <LinearLayout
             android:id="@+id/locationDisabledButton"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-            android:textColor="#000000"
-            android:background="@drawable/rounded_button"
-            android:fontFamily="@font/poppins_sb"
-            android:text="OKAY" />
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/circle"
+                android:src="@drawable/ic_baseline_location_off_24"
+
+                android:padding="4dp"/>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="#000000"
+                    android:textSize="15dp"
+
+                    android:text="Open Location"
+
+                    android:fontFamily="@font/poppins_r"/>
+<!--                <TextView-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:textAppearance="?android:attr/textAppearanceMedium"-->
+<!--                    android:textColor="#333333"-->
+<!--                    android:textSize="12dp"-->
+<!--                    android:text="This permission allows you to find your location with ease."-->
+<!--                    android:layout_marginTop="-5dp"-->
+<!--                    android:fontFamily="@font/poppins_r"/>-->
+            </LinearLayout>
+            <ImageView
+                android:id="@+id/locationDisabledArrow"
+                android:layout_width="27dp"
+                android:layout_height="27dp"
+                android:layout_gravity="center_horizontal"
+
+                android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
+                />
+            <ImageView
+                android:id="@+id/locationDisabledCheck"
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:layout_gravity="center_horizontal"
+                android:visibility="gone"
+                android:background="@drawable/circle"
+                android:src="@drawable/ic_baseline_check_24"
+                android:padding="3dp"
+                />
+        </LinearLayout>
+
+
     </LinearLayout>
+
     <Button
-        android:id="@+id/positiveButton"
-        style="?android:attr/buttonBarButtonStyle"
+        android:id="@+id/prePositiveButton"
+        style="@style/PrimaryButton"
         android:layout_width="match_parent"
         android:layout_height="45dp"
+        android:layout_marginTop="80dp"
+        android:enabled="false"
+        android:text="Continue"
+        android:textAllCaps="false"
+        />
 
+    <Button
+        android:id="@+id/preNegativeButton"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:textSize="14dp"
         android:textColor="#000000"
-        android:background="@drawable/rounded_button"
-        android:fontFamily="@font/poppins_sb"
-        android:text="OKAY" />
+        android:fontFamily="@font/poppins_r"
+        android:text="Cancel"
+        android:textAllCaps="false"
+        />
 </LinearLayout>
