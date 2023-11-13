@@ -73,38 +73,51 @@ public class PreparationsDialog {
         dialog.setCanceledOnTouchOutside(false);
         if(action.equals("onLoad") ){
             prePositiveButton.setText("Close");
+            prePositiveButton.setEnabled(true);
+            prePositiveButton.setBackgroundResource(R.drawable.rounded_button);
             preNegativeButton.setVisibility(View.GONE);
         } else {
             prePositiveButton.setText("Continue");
+            prePositiveButton.setEnabled(false);
+
             preNegativeButton.setVisibility(View.VISIBLE);
+            if(locationOn && locationEnabled && cameraEnabled) {
+                prePositiveButton.setBackgroundResource(R.drawable.rounded_button);
+            }else {
+                prePositiveButton.setBackgroundResource(R.drawable.rounded_button_disabled);
+            }
         }
         prePositiveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Toast.makeText(activity, "Click", Toast.LENGTH_SHORT).show();
-                if(!(action.equals("onLoad")) ){
-                    if(locationOnUpdate && locationEnabledUpdate && cameraEnabledUpdate) {
-                        prePositiveButton.setEnabled(true);
+                if (!(action.equals("onLoad"))) {
+                    if (locationOnUpdate && locationEnabledUpdate && cameraEnabledUpdate) {
                         prePositiveButton.setBackgroundResource(R.drawable.rounded_button);
-                       // Toast.makeText(activity, "activity", Toast.LENGTH_SHORT).show();
-                        if (mainActivity != null) {
-                            //Toast.makeText(activity, "activity1", Toast.LENGTH_SHORT).show();
-                            activity.changeWebViewUrl("https://www.sagip.me/emergency-reports");
-                        }
-                    }else {
-                        //Toast.makeText(activity, "elseeee", Toast.LENGTH_SHORT).show();
-                        prePositiveButton.setEnabled(false);
+
+                        mainActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (mainActivity != null) {
+                                    if (action.equals("request")) {
+                                        activity.changeWebViewUrl("https://www.sagip.me/emergency-reports");
+                                    }
+//                                    else {
+//                                        activity.changeWebViewUrl("https://www.sagip.me/hazard-reports");
+//                                    }
+                                }
+                            }
+                        });
+                    } else {
                         prePositiveButton.setBackgroundResource(R.drawable.rounded_button_disabled);
                     }
                     dialog.dismiss();
                 } else {
-                    //Toast.makeText(activity, "else", Toast.LENGTH_SHORT).show();
-                    prePositiveButton.setEnabled(false);
+                    prePositiveButton.setBackgroundResource(R.drawable.rounded_button);
                     dialog.dismiss();
                 }
-
             }
         });
+
 
         preNegativeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,62 +164,68 @@ public class PreparationsDialog {
     }
 
     public static void updateDialogLayout(boolean locationOn, boolean cameraEnabled, boolean locationEnabled) {
-        if (currentDialog != null && currentDialog.isShowing()) {
-            ImageView cameraPermissionArrow = currentDialog.findViewById(R.id.cameraPermissionArrow);
-            ImageView locationDisabledArrow = currentDialog.findViewById(R.id.locationDisabledArrow);
-            ImageView locationPermissionArrow = currentDialog.findViewById(R.id.locationPermissionArrow);
+        if (mainActivity != null && currentDialog != null && currentDialog.isShowing()) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
 
-            ImageView cameraPermissionCheck = currentDialog.findViewById(R.id.cameraPermissionCheck);
-            ImageView locationDisabledCheck = currentDialog.findViewById(R.id.locationDisabledCheck);
-            ImageView locationPermissionCheck = currentDialog.findViewById(R.id.locationPermissionCheck);
+                    ImageView cameraPermissionArrow = currentDialog.findViewById(R.id.cameraPermissionArrow);
+                    ImageView locationDisabledArrow = currentDialog.findViewById(R.id.locationDisabledArrow);
+                    ImageView locationPermissionArrow = currentDialog.findViewById(R.id.locationPermissionArrow);
 
-            if (locationDisabledArrow != null && locationDisabledCheck != null) {
-                if (locationOn) {
-                    locationOnUpdate = true;
-                    locationDisabledArrow.setVisibility(View.GONE);
-                    locationDisabledCheck.setVisibility(View.VISIBLE);
-                } else {
-                    locationOnUpdate = false;
-                    locationDisabledArrow.setVisibility(View.VISIBLE);
-                    locationDisabledCheck.setVisibility(View.GONE);
+                    ImageView cameraPermissionCheck = currentDialog.findViewById(R.id.cameraPermissionCheck);
+                    ImageView locationDisabledCheck = currentDialog.findViewById(R.id.locationDisabledCheck);
+                    ImageView locationPermissionCheck = currentDialog.findViewById(R.id.locationPermissionCheck);
+
+                    if (locationDisabledArrow != null && locationDisabledCheck != null) {
+                        if (locationOn) {
+                            locationOnUpdate = true;
+                            locationDisabledArrow.setVisibility(View.GONE);
+                            locationDisabledCheck.setVisibility(View.VISIBLE);
+                        } else {
+                            locationOnUpdate = false;
+                            locationDisabledArrow.setVisibility(View.VISIBLE);
+                            locationDisabledCheck.setVisibility(View.GONE);
+                        }
+                    }
+
+                    if (cameraPermissionArrow != null && cameraPermissionCheck != null) {
+                        if (cameraEnabled) {
+                            cameraEnabledUpdate = true;
+                            cameraPermissionArrow.setVisibility(View.GONE);
+                            cameraPermissionCheck.setVisibility(View.VISIBLE);
+                        } else {
+                            cameraEnabledUpdate = false;
+                            cameraPermissionArrow.setVisibility(View.VISIBLE);
+                            cameraPermissionCheck.setVisibility(View.GONE);
+                        }
+                    }
+
+                    if (locationPermissionArrow != null && locationPermissionCheck != null) {
+                        if (locationEnabled) {
+                            locationEnabledUpdate = true;
+                            locationPermissionArrow.setVisibility(View.GONE);
+                            locationPermissionCheck.setVisibility(View.VISIBLE);
+                        } else {
+                            locationEnabledUpdate = false;
+                            locationPermissionArrow.setVisibility(View.VISIBLE);
+                            locationPermissionCheck.setVisibility(View.GONE);
+                        }
+
+                    }
+
+                    Button prePositiveButton = currentDialog.findViewById(R.id.prePositiveButton);
+                    if (prePositiveButton != null) {
+                        if (locationOn && locationEnabled && cameraEnabled) {
+                            prePositiveButton.setEnabled(true);
+                            prePositiveButton.setBackgroundResource(R.drawable.rounded_button);
+                        } else {
+                            prePositiveButton.setEnabled(false);
+                            prePositiveButton.setBackgroundResource(R.drawable.rounded_button_disabled);
+                        }
+                    }
                 }
-            }
-
-            if (cameraPermissionArrow != null && cameraPermissionCheck != null) {
-
-                if (cameraEnabled) {
-                    cameraEnabledUpdate = true;
-                    cameraPermissionArrow.setVisibility(View.GONE);
-                    cameraPermissionCheck.setVisibility(View.VISIBLE);
-                } else {
-                    cameraEnabledUpdate = false;
-                    cameraPermissionArrow.setVisibility(View.VISIBLE);
-                    cameraPermissionCheck.setVisibility(View.GONE);
-                }
-            }
-
-            if (locationPermissionArrow != null && locationPermissionCheck != null) {
-                if (locationEnabled) {
-                    locationEnabledUpdate = true;
-                    locationPermissionArrow.setVisibility(View.GONE);
-                    locationPermissionCheck.setVisibility(View.VISIBLE);
-                } else {
-                    locationEnabledUpdate = false;
-                    locationPermissionArrow.setVisibility(View.VISIBLE);
-                    locationPermissionCheck.setVisibility(View.GONE);
-                }
-            }
-
-            Button prePositiveButton = currentDialog.findViewById(R.id.prePositiveButton);
-            if (prePositiveButton != null) {
-                if (locationOn && locationEnabled && cameraEnabled) {
-                    prePositiveButton.setEnabled(true);
-                    prePositiveButton.setBackgroundResource(R.drawable.rounded_button);
-                } else {
-                    prePositiveButton.setEnabled(false);
-                    prePositiveButton.setBackgroundResource(R.drawable.rounded_button_disabled);
-                }
-            }
+            });
         }
     }
 

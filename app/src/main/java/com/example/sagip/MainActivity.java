@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         SocketManager.connectSocket();
         //isLocationEnabled("onLoad");
 
-            permissionPreparation("onLoad");
+           // permissionPreparation("onLoad");
 
         networkStateChangeReceiver = new NetworkReceiver();
         startButton = findViewById(R.id.start_button);
@@ -352,14 +352,14 @@ public class MainActivity extends AppCompatActivity {
 //                onBoardingLayout.setVisibility(View.GONE);
 //                mainLayout.setVisibility(View.VISIBLE);
 
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
+//                    new Handler().postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
                             onBoardingLayout.setVisibility(View.GONE);
                             mainLayout.setVisibility(View.VISIBLE);
                            // isLocationEnabled("onLoad");
-                        }
-                    }, 3000);
+//                        }
+//                    }, 3000);
 
 //                AnimationUtils.applyFadeAnimation(onBoardingLayout, 0);
 //                AnimationUtils.applyFadeAnimation(mainLayout, 1);

@@ -16,20 +16,23 @@ public class PermissionBroadcastReceiver extends BroadcastReceiver {
     }
 
 
-
-@Override
-public void onReceive(Context context, Intent intent) {
-    if (intent != null && LocationManager.PROVIDERS_CHANGED_ACTION.equals(intent.getAction())) {
-
-
-
-        PreparationsDialog.updateDialogLayout(mainActivity.isLocationOn("false"), mainActivity.isCameraEnabled("false"),mainActivity.isLocationEnabled("false","resident"));
-
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if (intent != null && LocationManager.PROVIDERS_CHANGED_ACTION.equals(intent.getAction())) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        PreparationsDialog.updateDialogLayout(
+                                mainActivity.isLocationOn("false"),
+                                mainActivity.isCameraEnabled("false"),
+                                mainActivity.isLocationEnabled("false", "resident")
+                        );
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
     }
-
 }
-
-
-
-}
-
