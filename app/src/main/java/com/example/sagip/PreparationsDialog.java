@@ -165,10 +165,11 @@ public class PreparationsDialog {
 
     public static void updateDialogLayout(boolean locationOn, boolean cameraEnabled, boolean locationEnabled) {
         if (mainActivity != null && currentDialog != null && currentDialog.isShowing()) {
+            Toast.makeText(mainActivity, "taostifier", Toast.LENGTH_SHORT).show();
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-
+                    Toast.makeText(mainActivity, "taostifier", Toast.LENGTH_SHORT).show();
                     ImageView cameraPermissionArrow = currentDialog.findViewById(R.id.cameraPermissionArrow);
                     ImageView locationDisabledArrow = currentDialog.findViewById(R.id.locationDisabledArrow);
                     ImageView locationPermissionArrow = currentDialog.findViewById(R.id.locationPermissionArrow);
@@ -202,16 +203,21 @@ public class PreparationsDialog {
                     }
 
                     if (locationPermissionArrow != null && locationPermissionCheck != null) {
+                        //Toast.makeText(mainActivity, "1", Toast.LENGTH_SHORT).show();
                         if (locationEnabled) {
+                           // Toast.makeText(mainActivity, "2", Toast.LENGTH_SHORT).show();
                             locationEnabledUpdate = true;
                             locationPermissionArrow.setVisibility(View.GONE);
                             locationPermissionCheck.setVisibility(View.VISIBLE);
                         } else {
+                           // Toast.makeText(mainActivity, "3", Toast.LENGTH_SHORT).show();
                             locationEnabledUpdate = false;
                             locationPermissionArrow.setVisibility(View.VISIBLE);
                             locationPermissionCheck.setVisibility(View.GONE);
                         }
 
+                    } else {
+                       // Toast.makeText(mainActivity, "4", Toast.LENGTH_SHORT).show();
                     }
 
                     Button prePositiveButton = currentDialog.findViewById(R.id.prePositiveButton);
