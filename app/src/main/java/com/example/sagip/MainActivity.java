@@ -138,7 +138,7 @@ public Boolean isCameraEnabled= false;
 
         SocketManager.connectSocket();
         //isLocationEnabled("onLoad");
-       preparations();
+        permissionPreparation();
         networkStateChangeReceiver = new NetworkReceiver();
         startButton = findViewById(R.id.start_button);
         stopButton = findViewById(R.id.stop_button);
@@ -221,7 +221,7 @@ public Boolean isCameraEnabled= false;
 
         sagipWebView.setWebChromeClient(new WebChromeClient() {
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
-                if (!isCameraEnabled()) {
+                if (!isCameraEnabled("true")) {
 
                     return false;
                 }
@@ -349,7 +349,7 @@ public Boolean isCameraEnabled= false;
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                if (url.equals("https://www.sagip.live/")) {
+                if (url.equals("https://www.sagip.me/")) {
                     view.clearCache(true);
 //                onBoardingLayout.setVisibility(View.GONE);
 //                mainLayout.setVisibility(View.VISIBLE);
@@ -389,7 +389,7 @@ public Boolean isCameraEnabled= false;
         if (url != null && !url.isEmpty()) {
             sagipWebView.loadUrl(url);
         } else {
-            sagipWebView.loadUrl("https://www.sagip.live/");
+            sagipWebView.loadUrl("https://www.sagip.me/");
 
         }
 
@@ -490,7 +490,7 @@ public Boolean isCameraEnabled= false;
         isMainActivityActive = true;
         IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(networkStateChangeReceiver, intentFilter);
-        PreparationsDialog.updateDialogLayout(isLocationOn("resident"), isCameraEnabled(),isLocationEnabled("resident"));
+        PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
 
     }
 
@@ -522,21 +522,21 @@ public Boolean isCameraEnabled= false;
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
-            PreparationsDialog.updateDialogLayout(isLocationOn("resident"), isCameraEnabled(),isLocationEnabled("resident"));
+            PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, handle camera-related tasks
             } else {
                 // Permission denied, handle accordingly
             }
         } else if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
-            PreparationsDialog.updateDialogLayout(isLocationOn("resident"), isCameraEnabled(),isLocationEnabled("resident"));
+            PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, handle notification-related tasks
             } else {
                 // Permission denied, handle accordingly
             }
         } else if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            PreparationsDialog.updateDialogLayout(isLocationOn("resident"), isCameraEnabled(),isLocationEnabled("resident"));
+            PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, handle location-related tasks
             } else {
@@ -738,7 +738,7 @@ public Boolean isCameraEnabled= false;
 
     @JavascriptInterface
     public void startSharingLocation(String myToken, String userId, String assistanceReqId) {
-        if (isLocationEnabled("responder")) {
+        if (isLocationEnabled("false","responder")) {
 
             if (!isServiceRunning(ForegroundService.class)) {
 
@@ -782,18 +782,19 @@ public Boolean isCameraEnabled= false;
 
     }
     @JavascriptInterface
-    public boolean isCameraEnabled() {
+    public boolean isCameraEnabled(String showAlert) {
         String[] PERMISSIONS = { android.Manifest.permission.CAMERA };
 
         if (!hasPermissions(this, PERMISSIONS)) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.CAMERA)) {
-                // User has denied the permission but hasn't checked "Never ask again"
+
                 ActivityCompat.requestPermissions(this, PERMISSIONS, CAMERA_PERMISSION_REQUEST_CODE);
                 isCameraEnabled = false;
                 return false;
             } else {
-                // User has denied the permission and checked "Never ask again"
-                //=== showAlert("Camera Permission","To continue, please enable the camera permission in the app settings", "settings","Open App Settings");
+                if(showAlert.equals("true")) {
+                    showAlert("Camera Permission", "To continue, please enable the camera permission in the app settings", "settings", "Open App Settings");
+                }
                 isCameraEnabled = false;
                 return false;
             }
@@ -803,11 +804,8 @@ public Boolean isCameraEnabled= false;
         }
     }
     @JavascriptInterface
-    public boolean isLocationEnabled(String userType) {
-        //sagipWebView.setVisibility(View.INVISIBLE);
+    public boolean isLocationEnabled( String showAlert, String userType) {
 
-      //  Toast.makeText(this, "in", Toast.LENGTH_SHORT).show();
-        //Toast.makeText(this, userType + "", Toast.LENGTH_SHORT).show();
         String[] RESIDENT_PERMISSIONS = {
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.ACCESS_COARSE_LOCATION
@@ -819,111 +817,61 @@ public Boolean isCameraEnabled= false;
         };
         if (userType.equals("resident") || userType.equals("onLoad") ) {
             if (!hasPermissions(this, RESIDENT_PERMISSIONS)) {
-                //   Toast.makeText(this, "insider resi", Toast.LENGTH_SHORT).show();
+
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-                        //Toast.makeText(this, "in111", Toast.LENGTH_SHORT).show();
-                        // User has denied the permission but hasn't checked "Never ask again"
+
                         ActivityCompat.requestPermissions(this, RESIDENT_PERMISSIONS, LOCATION_PERMISSION_REQUEST_CODE);
-                        //Toast.makeText(this, "Location permission is denied", Toast.LENGTH_SHORT).show()
-                        isLocationEnabled = false;
+
                         return false;
                     } else {
-                       // Toast.makeText(this, "in112", Toast.LENGTH_SHORT).show();
-                        // User has denied the permission and checked "Never ask again"
-                        //===  showAlert("Location Permission", "To continue, please enable the location permission in the app settings.", "settings", "Open App Settings");
-                        isLocationEnabled = false;
+                       if(showAlert.equals("true")) {
+                           showAlert("Location Permission", "To continue, please enable the location permission in the app settings.", "settings", "Open App Settings");
+                       }
                         return false;
                     }
             } else {
-                return isLocationOn(userType);
+                return true;
             }
 
         }
         if (userType.equals("responder")) {
             if (!hasPermissions(this, RESPONDER_PERMISSIONS)) {
-               // Toast.makeText(this, userType + "", Toast.LENGTH_SHORT).show();
-
-                   // Toast.makeText(this, "insider respo", Toast.LENGTH_SHORT).show();
-            //        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-//                    Toast.makeText(this, "in121", Toast.LENGTH_SHORT).show();
-                    // User has denied the permission but hasn't checked "Never ask again"
-                   // ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, PERMISSIONS_REQUEST_BACKGROUND_LOCATION);
-
-                    //Toast.makeText(this, "Location permission is denied", Toast.LENGTH_SHORT).show()
-//                    return false;
-//                         } else {
-                     //   Toast.makeText(this, "in123", Toast.LENGTH_SHORT).show();
-                        // User has denied the permission and checked "Never ask again"
-                //=== showAlert("Location Permission", "To continue, please enable the location permission in the app settings and set it to  \"Allow all the time\".", "settings", "Open App Settings");
-//
-                isLocationEnabled = false;
+                if(showAlert.equals("true")) {
+                    showAlert("Location Permission", "To continue, please enable the location permission in the app settings and set it to  \"Allow all the time\".", "settings", "Open App Settings");
+                }
                         return false;
-                   // }
+
             } else {
 
-                return isLocationOn(userType);
+                return true;
             }
         }
         return false;
     }
     @JavascriptInterface
-    public boolean isLocationOn(String userType) {
+    public boolean isLocationOn( String showAlert) {
+      //  Toast.makeText(this, "d"+showAlert, Toast.LENGTH_SHORT).show();
 
-             //   Toast.makeText(this, "in2", Toast.LENGTH_SHORT).show();
                 LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
-                    //Toast.makeText(this, "Location services are not enabled", Toast.LENGTH_SHORT).show();
+
                    String alertMessage = "";
-                   if(userType.equals("onLoad")) {
-                       //===   showAlert("Location Disabled", "Some of our features require access to your device’s location, for better experience kindly turn on your device location.", "location", "Open Location Settings");
-                   }else {
-                       //===   showAlert("Location Disabled", "To continue, kindly turn on your device location.", "location", "Open Location Settings");
+//                   if(userType.equals("onLoad")) {
+//                       if(showAlert) {
+//                           showAlert("Location Disabled", "Some of our features require access to your device’s location, for better experience kindly turn on your device location.", "location", "Open Location Settings");
+//                       }
+//                   }else {
+                       if(showAlert.equals("true")) {
+                       showAlert("Location Disabled", "To continue, kindly turn on your device location.", "location", "Open Location Settings");
                    }
-                    isLocationEnabled = false;
+//                   }
+
                     return false;
                 } else {
-                    isLocationEnabled = true;
+
                     return true;
                 }
     }
-
-
-
-
-//
-//    public boolean isMicrophoneEnabled() {
-//
-//        String[] PERMISSIONS = {
-//                android.Manifest.permission.RECORD_AUDIO
-//        };
-//
-//        if (!hasPermissions(getApplicationContext(), PERMISSIONS)) {
-//            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
-//            return false;
-//        } else {
-//            return true;
-//
-//        }
-//    }
-
-
-
-//    private void isWifiEnabled() {
-//
-//
-//        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-//        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-//        if (networkInfo != null && networkInfo.isConnected()) {
-//
-//
-//            //  Toast.makeText(this, "Internet is available!", Toast.LENGTH_SHORT).show();
-//        }
-//
-//        if (networkInfo == null || !networkInfo.isConnected()) {
-//
-//            //  Toast.makeText(this, "No internet connection!", Toast.LENGTH_SHORT).show();
-//        }
-//    }
 
 
     @JavascriptInterface
@@ -979,16 +927,12 @@ public Boolean isCameraEnabled= false;
         startActivity(intent);
     }
 
-
-    public void preparations () {
+    @JavascriptInterface
+    public void permissionPreparation () {
 //        if(!isLocationEnabled("resident") || !isCameraEnabled())
-        PreparationsDialog.showAlertDialog(this,isLocationEnabled("resident"),isCameraEnabled(), isLocationOn("resident"));
+        PreparationsDialog.showAlertDialog(this,isLocationEnabled("false","resident"),isCameraEnabled("false"), isLocationOn("false"));
     }
 
-    private void sendPermissionChangedBroadcast() {
-        Intent intent = new Intent("com.example.sagip.PERMISSION_CHANGED");
-        sendBroadcast(intent);
-    }
 
 
 }

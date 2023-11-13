@@ -21,16 +21,9 @@ public class PermissionBroadcastReceiver extends BroadcastReceiver {
 public void onReceive(Context context, Intent intent) {
     if (intent != null && LocationManager.PROVIDERS_CHANGED_ACTION.equals(intent.getAction())) {
 
-        if (mainActivity.isLocationOn("resident")) {
-            showToast(mainActivity, "Location is ON");
 
-            isLocationOn = true;
-        } else {
-            showToast(mainActivity, "Location is OFF");
-            isLocationOn  =false;
-        }
 
-        PreparationsDialog.updateDialogLayout(mainActivity.isLocationOn("resident"), mainActivity.isCameraEnabled(),mainActivity.isLocationEnabled("resident"));
+        PreparationsDialog.updateDialogLayout(mainActivity.isLocationOn("false"), mainActivity.isCameraEnabled("false"),mainActivity.isLocationEnabled("false","resident"));
 
     }
 

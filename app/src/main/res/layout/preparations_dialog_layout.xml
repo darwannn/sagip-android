@@ -14,24 +14,23 @@
     >
 
     <TextView
-
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="#293B95"
-        android:text="Preparation"
-        android:textSize="20dp"
+        android:text="TEXT"
+        android:textSize="30dp"
+
         android:layout_gravity="center"
         android:fontFamily="@font/poppins_b"
         />
     <ImageView
 
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/circle"
-        android:src="@drawable/ic_baseline_location_on_24"
-        android:padding="8dp"/>
+
+        android:src="@drawable/permission_vector" />
     <TextView
 
         android:layout_width="wrap_content"
