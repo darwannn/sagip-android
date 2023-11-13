@@ -1,56 +1,82 @@
 <!-- custom_dialog_layout.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
 
+    android:background="@drawable/rounded_modal"
 
-    android:paddingTop="23dp"
-    android:paddingBottom="7dp"
+    android:paddingTop="40dp"
+    android:paddingBottom="40dp"
     android:paddingHorizontal="22dp"
     >
 
-<!--    <TextView-->
-<!--        android:id="@+id/titleTextView"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:textAppearance="?android:attr/textAppearanceLarge"-->
-<!--        android:textColor="?android:attr/textColorPrimary" />-->
+    <TextView
+        android:id="@+id/customTitleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#293B95"
+        android:text="TEXT"
+        android:textSize="30dp"
+
+        android:layout_gravity="center"
+        android:fontFamily="@font/poppins_b"
+        />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center_horizontal"
+
+        android:src="@drawable/permission_vector" />
 
     <TextView
         android:id="@+id/messageTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?android:attr/textColorPrimary"
+        android:textColor="#000000"
+        android:textSize="16dp"
         android:text="MESSAGE"
-
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:fontFamily="@font/poppins_r"
         />
 
     <LinearLayout
         android:id="@+id/buttonLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+
         android:gravity="right">
+
+    <Button
+        android:id="@+id/positiveButton"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:textSize="16dp"
+        android:textColor="#ffffff"
+        android:background="@drawable/rounded_button"
+        android:fontFamily="@font/poppins_sb"
+        android:text="OKAY" />
         <Button
             android:id="@+id/negativeButton"
             style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="?android:attr/textColorPrimary"
-            android:paddingHorizontal="0dp"
-            android:layout_marginEnd="15dp"
-            android:text="Cancel"  android:gravity="right"/>
-        <Button
-            android:id="@+id/positiveButton"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="?android:attr/textColorPrimary"
-            android:paddingHorizontal="0dp"
-            android:text="OKAY"  android:gravity="right"/>
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+
+            android:textColor="#000000"
+            android:fontFamily="@font/poppins_r"
+        android:text="Cancel" />
+
 
 
     </LinearLayout>

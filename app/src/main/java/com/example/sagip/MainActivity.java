@@ -76,7 +76,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_BACKGROUND_LOCATION = 1006;
     private static final int CAMERA_PERMISSION_REQUEST = 300;
 
-
+public Boolean isLocationEnabled = false;
+public Boolean isCameraEnabled= false;
     private NetworkReceiver networkStateChangeReceiver;
     private MediaPlayer mediaPlayer;
     private boolean isPlaying = false;
@@ -122,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
     private Button startButton;
     private Button stopButton;
 
+    private PermissionBroadcastReceiver permissionReceiver;
 
     @Override
     @SuppressLint("SetJavaScriptEnabled")
@@ -129,9 +131,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        permissionReceiver = new PermissionBroadcastReceiver(this);
+        IntentFilter intentFilter = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
+        intentFilter.addAction("com.example.sagip.PERMISSION_CHANGED");
+        registerReceiver(permissionReceiver, intentFilter);
 
         SocketManager.connectSocket();
-
+        //isLocationEnabled("onLoad");
+       preparations();
         networkStateChangeReceiver = new NetworkReceiver();
         startButton = findViewById(R.id.start_button);
         stopButton = findViewById(R.id.stop_button);
@@ -342,20 +349,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                view.clearCache(true);
+                if (url.equals("https://www.sagip.live/")) {
+                    view.clearCache(true);
 //                onBoardingLayout.setVisibility(View.GONE);
 //                mainLayout.setVisibility(View.VISIBLE);
 
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        onBoardingLayout.setVisibility(View.GONE);
-                        mainLayout.setVisibility(View.VISIBLE);
-                    }
-                }, 3000);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            onBoardingLayout.setVisibility(View.GONE);
+                            mainLayout.setVisibility(View.VISIBLE);
+                           // isLocationEnabled("onLoad");
+                        }
+                    }, 3000);
 
 //                AnimationUtils.applyFadeAnimation(onBoardingLayout, 0);
 //                AnimationUtils.applyFadeAnimation(mainLayout, 1);
+                }
             }
 
         });
@@ -466,6 +476,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         SocketManager.disconnectSocket();
+        if (permissionReceiver != null) {
+            unregisterReceiver(permissionReceiver);
+        }
+
+        super.onDestroy();
     }
 
 
@@ -475,6 +490,8 @@ public class MainActivity extends AppCompatActivity {
         isMainActivityActive = true;
         IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(networkStateChangeReceiver, intentFilter);
+        PreparationsDialog.updateDialogLayout(isLocationOn("resident"), isCameraEnabled(),isLocationEnabled("resident"));
+
     }
 
     @Override
@@ -505,18 +522,21 @@ public class MainActivity extends AppCompatActivity {
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
+            PreparationsDialog.updateDialogLayout(isLocationOn("resident"), isCameraEnabled(),isLocationEnabled("resident"));
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, handle camera-related tasks
             } else {
                 // Permission denied, handle accordingly
             }
         } else if (requestCode == NOTIFICATION_PERMISSION_REQUEST_CODE) {
+            PreparationsDialog.updateDialogLayout(isLocationOn("resident"), isCameraEnabled(),isLocationEnabled("resident"));
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, handle notification-related tasks
             } else {
                 // Permission denied, handle accordingly
             }
         } else if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            PreparationsDialog.updateDialogLayout(isLocationOn("resident"), isCameraEnabled(),isLocationEnabled("resident"));
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted, handle location-related tasks
             } else {
@@ -742,18 +762,20 @@ public class MainActivity extends AppCompatActivity {
         PersistentStorage.clearPersistentStorage(this);
     }
     private void showAlert(String title, String message, String intentType, String buttonText) {
-        CustomDialog.showAlertDialog(this, title, message,
+        CustomDialog.showAlertDialog(this, title, message,intentType,
                 buttonText, new CustomDialog.OnPositiveButtonClickListener() {
                     @Override
                     public void onPositiveButtonClick() {
                         if(intentType.equals("settings") ) {
-                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                            Uri uri = Uri.fromParts("package", getPackageName(), null);
-                            intent.setData(uri);
-                            startActivity(intent);
+//                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+//                            Uri uri = Uri.fromParts("package", getPackageName(), null);
+//                            intent.setData(uri);
+//                            startActivity(intent);
+                            openAppSettings();
                         } else if(intentType.equals("location")){
-                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            startActivity(intent);
+//                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+//                            startActivity(intent);
+                            openLocationSettings();
                         }
                     }
                 });
@@ -767,13 +789,16 @@ public class MainActivity extends AppCompatActivity {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.CAMERA)) {
                 // User has denied the permission but hasn't checked "Never ask again"
                 ActivityCompat.requestPermissions(this, PERMISSIONS, CAMERA_PERMISSION_REQUEST_CODE);
+                isCameraEnabled = false;
                 return false;
             } else {
                 // User has denied the permission and checked "Never ask again"
-                showAlert("Camera Permission","To continue, please enable the camera permission in the app settings", "settings","Open App Settings");
+                //=== showAlert("Camera Permission","To continue, please enable the camera permission in the app settings", "settings","Open App Settings");
+                isCameraEnabled = false;
                 return false;
             }
         } else {
+            isCameraEnabled = true;
             return true;
         }
     }
@@ -792,7 +817,7 @@ public class MainActivity extends AppCompatActivity {
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_BACKGROUND_LOCATION
         };
-        if (userType.equals("resident")) {
+        if (userType.equals("resident") || userType.equals("onLoad") ) {
             if (!hasPermissions(this, RESIDENT_PERMISSIONS)) {
                 //   Toast.makeText(this, "insider resi", Toast.LENGTH_SHORT).show();
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -800,15 +825,17 @@ public class MainActivity extends AppCompatActivity {
                         // User has denied the permission but hasn't checked "Never ask again"
                         ActivityCompat.requestPermissions(this, RESIDENT_PERMISSIONS, LOCATION_PERMISSION_REQUEST_CODE);
                         //Toast.makeText(this, "Location permission is denied", Toast.LENGTH_SHORT).show()
+                        isLocationEnabled = false;
                         return false;
                     } else {
                        // Toast.makeText(this, "in112", Toast.LENGTH_SHORT).show();
                         // User has denied the permission and checked "Never ask again"
-                        showAlert("Location Permission", "To continue, please enable the location permission in the app settings.", "settings", "Open App Settings");
+                        //===  showAlert("Location Permission", "To continue, please enable the location permission in the app settings.", "settings", "Open App Settings");
+                        isLocationEnabled = false;
                         return false;
                     }
             } else {
-                return isLocationOn();
+                return isLocationOn(userType);
             }
 
         }
@@ -827,30 +854,37 @@ public class MainActivity extends AppCompatActivity {
 //                         } else {
                      //   Toast.makeText(this, "in123", Toast.LENGTH_SHORT).show();
                         // User has denied the permission and checked "Never ask again"
-                showAlert("Location Permission", "To continue, please enable the location permission in the app settings and set it to  \"Allow all the time\".", "settings", "Open App Settings");
+                //=== showAlert("Location Permission", "To continue, please enable the location permission in the app settings and set it to  \"Allow all the time\".", "settings", "Open App Settings");
 //
+                isLocationEnabled = false;
                         return false;
                    // }
             } else {
-                return isLocationOn();
+
+                return isLocationOn(userType);
             }
         }
         return false;
     }
     @JavascriptInterface
-    public boolean isLocationOn() {
+    public boolean isLocationOn(String userType) {
 
              //   Toast.makeText(this, "in2", Toast.LENGTH_SHORT).show();
                 LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
                     //Toast.makeText(this, "Location services are not enabled", Toast.LENGTH_SHORT).show();
-                    showAlert("Location Disabled", "To continue, kindly turn on your device location.", "location", "Open Location Settings");
-
+                   String alertMessage = "";
+                   if(userType.equals("onLoad")) {
+                       //===   showAlert("Location Disabled", "Some of our features require access to your device’s location, for better experience kindly turn on your device location.", "location", "Open Location Settings");
+                   }else {
+                       //===   showAlert("Location Disabled", "To continue, kindly turn on your device location.", "location", "Open Location Settings");
+                   }
+                    isLocationEnabled = false;
                     return false;
                 } else {
+                    isLocationEnabled = true;
                     return true;
                 }
-
     }
 
 
@@ -930,5 +964,31 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    @JavascriptInterface
+    public void openAppSettings () {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        Uri uri = Uri.fromParts("package", getPackageName(), null);
+        intent.setData(uri);
+        startActivity(intent);
+    }
+
+    @JavascriptInterface
+    public void openLocationSettings () {
+        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        startActivity(intent);
+    }
+
+
+    public void preparations () {
+//        if(!isLocationEnabled("resident") || !isCameraEnabled())
+        PreparationsDialog.showAlertDialog(this,isLocationEnabled("resident"),isCameraEnabled(), isLocationOn("resident"));
+    }
+
+    private void sendPermissionChangedBroadcast() {
+        Intent intent = new Intent("com.example.sagip.PERMISSION_CHANGED");
+        sendBroadcast(intent);
+    }
+
 
 }
