@@ -100,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
     private ValueCallback<Uri> mUM;
     private ValueCallback<Uri[]> mUMA;
     private final static int FCR = 1;
+    private boolean isAppInRecent;
 
     int PERMISSION_ALL = 1;
     String[] PERMISSIONS = {
@@ -126,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        isAppInRecent = true;
         permissionReceiver = new PermissionBroadcastReceiver(this);
         IntentFilter intentFilter = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
         intentFilter.addAction("com.example.sagip.PERMISSION_CHANGED");
@@ -473,6 +474,11 @@ public class MainActivity extends AppCompatActivity {
 
     // ----------- override
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        isAppInRecent = true;
+    }
 
     @Override
     protected void onDestroy() {
@@ -935,6 +941,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @JavascriptInterface
+    public boolean permissionPreparationOnLoad() {
+        if(isAppInRecent) {
+            return false;
+        } else {
+            permissionPreparation("onLoad");
+            return true;
+        }
+
+    }
 
 
 }
