@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="#293B95"
-        android:text="APP SETTINGS"
+        android:text="App Settings"
         android:textSize="22dp"
         android:layout_marginBottom="10dp"
         android:layout_gravity="center"
@@ -59,7 +59,7 @@
      >
 
         <LinearLayout
-            android:id="@+id/cameraPermissionButton"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -132,7 +132,7 @@
         >
 
         <LinearLayout
-            android:id="@+id/locationPermissionButton"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -205,7 +205,7 @@
         >
 
         <LinearLayout
-            android:id="@+id/locationDisabledButton"
+
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -233,7 +233,7 @@
                     android:textColor="#000000"
                     android:textSize="15dp"
 
-                    android:text="Open Location"
+                    android:text="Open Device's Location"
 
                     android:fontFamily="@font/poppins_r"/>
 <!--                <TextView-->
@@ -274,7 +274,7 @@
         style="@style/PrimaryButton"
         android:layout_width="match_parent"
         android:layout_height="45dp"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="70dp"
         android:enabled="false"
         android:text="Continue"
         android:textAllCaps="false"

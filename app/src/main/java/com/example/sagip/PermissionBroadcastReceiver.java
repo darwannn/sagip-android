@@ -23,7 +23,7 @@ public class PermissionBroadcastReceiver extends BroadcastReceiver {
                 @Override
                 public void run() {
                     try {
-                        Toast.makeText(context, "taostify", Toast.LENGTH_SHORT).show();
+                    //    Toast.makeText(context, "taostify", Toast.LENGTH_SHORT).show();
                         PreparationsDialog.updateDialogLayout(
                                 mainActivity.isLocationOn("false"),
                                 mainActivity.isCameraEnabled("false"),

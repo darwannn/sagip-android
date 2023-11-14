@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
     private ValueCallback<Uri> mUM;
     private ValueCallback<Uri[]> mUMA;
     private final static int FCR = 1;
-    private boolean isAppInRecent;
+    private boolean isAppInRecent = false;
 
     int PERMISSION_ALL = 1;
     String[] PERMISSIONS = {
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
             android.Manifest.permission.READ_SMS,
             android.Manifest.permission.CAMERA,
             android.Manifest.permission.ACCESS_FINE_LOCATION,
-            //android.Manifest.permission.ACCESS_COARSE_LOCATION,
+            android.Manifest.permission.ACCESS_COARSE_LOCATION,
             //android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
             //android.Manifest.permission.RECORD_AUDIO,
             android.Manifest.permission.POST_NOTIFICATIONS
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        isAppInRecent = true;
+       // isAppInRecent = true;
         permissionReceiver = new PermissionBroadcastReceiver(this);
         IntentFilter intentFilter = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
         intentFilter.addAction("com.example.sagip.PERMISSION_CHANGED");
@@ -348,7 +348,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                if (url.equals("https://www.sagip.me/")) {
+                if (url.equals("https://www.sagip.live/")) {
                     view.clearCache(true);
 //                onBoardingLayout.setVisibility(View.GONE);
 //                mainLayout.setVisibility(View.VISIBLE);
@@ -364,6 +364,9 @@ public class MainActivity extends AppCompatActivity {
 
 //                AnimationUtils.applyFadeAnimation(onBoardingLayout, 0);
 //                AnimationUtils.applyFadeAnimation(mainLayout, 1);
+                } else {
+                    onBoardingLayout.setVisibility(View.GONE);
+                    mainLayout.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -388,7 +391,7 @@ public class MainActivity extends AppCompatActivity {
         if (url != null && !url.isEmpty()) {
             sagipWebView.loadUrl(url);
         } else {
-            sagipWebView.loadUrl("https://www.sagip.me/");
+            sagipWebView.loadUrl("https://www.sagip.live/");
 
         }
 
@@ -474,21 +477,18 @@ public class MainActivity extends AppCompatActivity {
 
     // ----------- override
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        isAppInRecent = true;
-    }
+
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        SocketManager.disconnectSocket();
+        if (!isDestroyed()) {
+
+            SocketManager.disconnectSocket();
+        }
         if (permissionReceiver != null) {
             unregisterReceiver(permissionReceiver);
         }
-
-        super.onDestroy();
     }
 
 
@@ -801,7 +801,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             } else {
                 if(showAlert.equals("true")) {
-                    showAlert("Camera Permission", "To continue, please enable the camera permission in the app settings", "settings", "Open App Settings");
+                    showAlert("Grant Camera Permission", "To continue, please enable the camera permission in the app settings", "settings", "Open App Settings");
                 }
 
                 return false;
@@ -833,7 +833,7 @@ public class MainActivity extends AppCompatActivity {
                         return false;
                     } else {
                        if(showAlert.equals("true")) {
-                           showAlert("Location Permission", "To continue, please enable the location permission in the app settings.", "settings", "Open App Settings");
+                           showAlert("Grant Location Permission", "To continue, please enable the location permission in the app settings.", "settings", "Open App Settings");
                        }
                         return false;
                     }
@@ -845,7 +845,7 @@ public class MainActivity extends AppCompatActivity {
         if (userType.equals("responder")) {
             if (!hasPermissions(this, RESPONDER_PERMISSIONS)) {
                 if(showAlert.equals("true")) {
-                    showAlert("Location Permission", "To continue, please enable the location permission in the app settings and set it to  \"Allow all the time\".", "settings", "Open App Settings");
+                    showAlert("Grant Location Permission", "To continue, please enable the location permission in the app settings and set it to  \"Allow all the time\".", "settings", "Open App Settings");
                 }
                         return false;
 
@@ -863,7 +863,7 @@ public class MainActivity extends AppCompatActivity {
         if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
 
             if (showAlert.equals("true")) {
-                showAlert("Location Disabled", "To continue, kindly turn on your device location.", "location", "Open Location Settings");
+                showAlert("Open Device's Location", "To continue, kindly turn on your device location.", "location", "Open Location Settings");
             }
 
 
@@ -942,13 +942,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @JavascriptInterface
-    public boolean permissionPreparationOnLoad() {
-        if(isAppInRecent) {
-            return false;
-        } else {
-            permissionPreparation("onLoad");
-            return true;
+    public void permissionPreparationOnLoad() {
+
+        try {
+            if (isAppInRecent) {
+
+            } else {
+                isAppInRecent = true;
+                permissionPreparation("onLoad");
+
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "s"+e, Toast.LENGTH_SHORT).show();
         }
+
+
 
     }
 
