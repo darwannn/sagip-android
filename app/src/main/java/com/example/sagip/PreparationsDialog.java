@@ -137,9 +137,9 @@ public class PreparationsDialog {
                         if (action.equals("request")) {
                             activity.changeWebViewUrl("https://www.sagip.live/home");
                         }
-//                        else {
-//                            activity.changeWebViewUrl("https://www.sagip.live/hazard-reports");
-//                        }
+                        else {
+                            activity.changeWebViewUrl("https://www.sagip.live/hazard-reports");
+                        }
                     }
                 });
 
