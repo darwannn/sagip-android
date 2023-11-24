@@ -795,9 +795,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (!hasPermissions(this, PERMISSIONS)) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.CAMERA)) {
-
-                ActivityCompat.requestPermissions(this, PERMISSIONS, CAMERA_PERMISSION_REQUEST_CODE);
-
+                if(showAlert.equals("true")) {
+                   // ActivityCompat.requestPermissions(this, PERMISSIONS, CAMERA_PERMISSION_REQUEST_CODE);
+                }
                 return false;
             } else {
                 if(showAlert.equals("true")) {
@@ -827,9 +827,9 @@ public class MainActivity extends AppCompatActivity {
             if (!hasPermissions(this, RESIDENT_PERMISSIONS)) {
 
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                        ActivityCompat.requestPermissions(this, RESIDENT_PERMISSIONS, LOCATION_PERMISSION_REQUEST_CODE);
-
+                        if(showAlert.equals("true")) {
+                          //  ActivityCompat.requestPermissions(this, RESIDENT_PERMISSIONS, LOCATION_PERMISSION_REQUEST_CODE);
+                        }
                         return false;
                     } else {
                        if(showAlert.equals("true")) {
