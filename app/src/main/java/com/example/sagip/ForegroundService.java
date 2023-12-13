@@ -8,15 +8,12 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
@@ -27,11 +24,6 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Timer;
 
 public class ForegroundService extends Service {
 
@@ -96,10 +88,8 @@ public class ForegroundService extends Service {
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(KEY_URL, webpageUrl);
 
-        // Add these flags to clear the previous task and start a new one
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 
-        // Add a custom action to finish the MainActivity
         intent.setAction("com.example.sagip.FINISH_ACTIVITY");
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
@@ -118,19 +108,11 @@ public class ForegroundService extends Service {
         return builder.build();
     }
 
-
-
-//    private boolean isDarkModeEnabled() {
-//        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-//        return currentNightMode == Configuration.UI_MODE_NIGHT_YES;
-//    }
-
     public void sendLocationUpdate() {
 
             LocationRequest locationRequest = LocationRequest.create();
             locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
             locationRequest.setInterval(10000);
-
 
             locationCallback = new LocationCallback() {
                 @Override
@@ -141,13 +123,11 @@ public class ForegroundService extends Service {
                     Log.d(TAG, "latitude " + latitude);
                     Log.d(TAG, "longitude " + longitude);
 
-
                         SocketManager.emitLocationEvent(residentUserId, latitude,longitude, assistanceReqId);
 
                         new Handler(Looper.getMainLooper()).post(() -> {
-                           // Toast.makeText(ForegroundService.this, "Lat: " + latitude + " Lng: " + longitude, Toast.LENGTH_SHORT).show();
-                        });
 
+                           });
                 }
             };
 

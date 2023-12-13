@@ -66,11 +66,6 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity
-            android:name=".OnboardingActivtiy"
-            android:exported="false">
-
-        </activity>
         <receiver
             android:name=".PermissionBroadcastReceiver"
             android:enabled="true"

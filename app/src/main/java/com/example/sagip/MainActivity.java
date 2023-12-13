@@ -113,7 +113,6 @@ public class MainActivity extends AppCompatActivity {
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.ACCESS_COARSE_LOCATION,
             //android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-            //android.Manifest.permission.RECORD_AUDIO,
             android.Manifest.permission.POST_NOTIFICATIONS
     };
 
@@ -127,16 +126,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-       // isAppInRecent = true;
+
         permissionReceiver = new PermissionBroadcastReceiver(this);
         IntentFilter intentFilter = new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION);
         intentFilter.addAction("com.example.sagip.PERMISSION_CHANGED");
         registerReceiver(permissionReceiver, intentFilter);
 
         SocketManager.connectSocket();
-        //isLocationEnabled("onLoad");
-
-           // permissionPreparation("onLoad");
 
         networkStateChangeReceiver = new NetworkReceiver();
         startButton = findViewById(R.id.start_button);
@@ -145,45 +141,18 @@ public class MainActivity extends AppCompatActivity {
         String retrievedMyToken = PersistentStorage.getFromPersistentStorage(this, "myToken");
         String retrievedUserId = PersistentStorage.getFromPersistentStorage(this, "userId");
         String retrievedAssistanceReqId = PersistentStorage.getFromPersistentStorage(this, "assistanceReqId");
+
         if (!TextUtils.isEmpty(retrievedUserId) && !TextUtils.isEmpty(retrievedAssistanceReqId)) {
             startSharingLocation(retrievedMyToken,retrievedUserId,retrievedAssistanceReqId);
 
         }
 
-        startButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Location services are enabled, proceed with location-related operations
-              //  isCameraEnabled();
-                startButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startSharingLocation("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0YXJnZXQiOiJsb2dpbiIsImlkIjoiNjQ3ODhkZmQyOTVlMmYxODRlNTVkMjBmIiwidXNlclR5cGUiOiJyZXNwb25kZXIiLCJzdGF0dXMiOiJ2ZXJpZmllZCIsImlkZW50aWZpZXIiOiIiLCJpYXQiOjE2OTUxMjU2NTMsImV4cCI6MTY5NTczMDQ1M30.sKDakxziMbSR7ckgDjhuzpRZyL9GjT3G4mQqAMbEQqU", "64788dfd295e2f184e55d20f","65082993d2c94183011a5412");
-                    }
-                });
-
-            }
-        });
-
-        stopButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopSharingLocation();
-               // isLocationEnabled("responder");
-
-            }
-        });
-
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        //isWifiEnabled();
 
-        //invoke functions
         getFcmToken();
         subscribeToTopic();
         createNotificationChannel();
-
 
         if (!hasPermissions(getApplicationContext(), PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
@@ -197,15 +166,12 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setDisplayZoomControls(false);
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
-
-//        webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+//      webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
         sagipWebView.clearCache(true);
         sagipWebView.clearHistory();
-
         webSettings.setUseWideViewPort(true);
         webSettings.setAllowFileAccess(true);
-
         webSettings.setDomStorageEnabled(true);
         webSettings.setGeolocationEnabled(true);
         webSettings.setMediaPlaybackRequiresUserGesture(false);
@@ -213,8 +179,6 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setAllowFileAccessFromFileURLs(true);
         webSettings.setAllowUniversalAccessFromFileURLs(true);
         webSettings.setPluginState(WebSettings.PluginState.ON);
-
-
         webSettings.setAllowContentAccess(true);
         sagipWebView.addJavascriptInterface(MainActivity.this, "AndroidInterface");
 
@@ -279,7 +243,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-
             @Override
             public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
                 callback.invoke(origin, true, false);
@@ -290,13 +253,11 @@ public class MainActivity extends AppCompatActivity {
                 request.grant(request.getResources());
             }
 
-
             private View mCustomView;
             private WebChromeClient.CustomViewCallback mCustomViewCallback;
             protected FrameLayout mFullscreenContainer;
             private int mOriginalOrientation;
             private int mOriginalSystemUiVisibility;
-
 
             public Bitmap getDefaultVideoPoster()
             {
@@ -380,7 +341,6 @@ public class MainActivity extends AppCompatActivity {
                 if (actionId == EditorInfo.IME_ACTION_GO) {
                     String urlOrSearchTerm = searchBar.getText().toString();
                     loadUrl(urlOrSearchTerm);
-                    //Toast.makeText(MainActivity.this, ""+urlOrSearchTerm, Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 return false;
@@ -392,10 +352,7 @@ public class MainActivity extends AppCompatActivity {
             sagipWebView.loadUrl(url);
         } else {
             sagipWebView.loadUrl("https://www.sagip.live/");
-
         }
-
-
     }
 
     public void changeWebViewUrl(String newUrl) {
@@ -439,7 +396,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     // Create an image file
     private File createImageFile() throws IOException {
         @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
@@ -450,8 +406,8 @@ public class MainActivity extends AppCompatActivity {
             storageDir.mkdirs();
         }
 
-        File imageFile = new File(storageDir, imageFileName); // Create a temporary image file
-        return imageFile; // Return the created file
+        File imageFile = new File(storageDir, imageFileName);
+        return imageFile;
     }
 
     @Override
@@ -462,7 +418,6 @@ public class MainActivity extends AppCompatActivity {
             super.onBackPressed();
         }
     }
-
 
     public static boolean hasPermissions(Context context, String... permissions) {
         if (context != null && permissions != null) {
@@ -476,14 +431,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // ----------- override
-
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (!isDestroyed()) {
-
             SocketManager.disconnectSocket();
         }
         if (permissionReceiver != null) {
@@ -499,7 +450,6 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(networkStateChangeReceiver, intentFilter);
         PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
-
     }
 
     @Override
@@ -523,7 +473,6 @@ public class MainActivity extends AppCompatActivity {
         sagipWebView.restoreState(savedInstanceState);
     }
 
-    // Handle permission request results
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
@@ -548,25 +497,21 @@ public class MainActivity extends AppCompatActivity {
                 // Permission granted, handle location-related tasks
             } else {
                // PreparationsDialog.updateDialogLayout(isLocationOn("false"), isCameraEnabled("false"),isLocationEnabled("false","resident"));
-
             }
         }
     }
 
     // ----------- functions
-
-    // get FCM token assigned to the device
     private void getFcmToken() {
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
             @Override
             public void onComplete(@NonNull Task<String> task) {
                 if (!task.isSuccessful()) {
                     Log.d(TAG, "onComplete: Failed to get the Token");
-                    fcmToken = null;  // Set the token to null if fetching fails
+                    fcmToken = null;
                 } else {
                     fcmToken = task.getResult();
                     Log.v("myTag", fcmToken);
-                    // Toast.makeText(MainActivity.this, "" + fcmToken, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -576,7 +521,6 @@ public class MainActivity extends AppCompatActivity {
         FirebaseMessaging.getInstance().subscribeToTopic("sagip").addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                // Toast.makeText(MainActivity.this, "subscribed", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -595,8 +539,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadUrl(String urlOrSearchTerm) {
-
-        // Run WebView on a separate thread
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {
             @Override
@@ -604,19 +546,14 @@ public class MainActivity extends AppCompatActivity {
                 sagipWebView.loadUrl(urlOrSearchTerm);
             }
         }, 1000);
-        //sagipWebView.loadUrl(urlOrSearchTerm);
     }
 
-
     // ----------- javascript interface
-
-    //put request
     @JavascriptInterface
     public void updateFcmToken(String identifier) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                //   Toast.makeText(MainActivity.this, "Identifier: " + identifier, Toast.LENGTH_SHORT).show();
                 RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
                 String url = "https://sagip.onrender.com/account/fcm";
 
@@ -655,7 +592,6 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                //   Toast.makeText(MainActivity.this, "Identifier: " + identifier, Toast.LENGTH_SHORT).show();
                 RequestQueue queue = Volley.newRequestQueue(MainActivity.this);
                 String url = "https://sagip.onrender.com/account/remove-fcm";
 
@@ -693,7 +629,6 @@ public class MainActivity extends AppCompatActivity {
     @JavascriptInterface
     public void vibrateOnHold() {
         Vibrator vibrator = (Vibrator) getSystemService(MainActivity.this.VIBRATOR_SERVICE);
-        //  Toast.makeText(this, "showing", Toast.LENGTH_SHORT).show();
         if (vibrator.hasVibrator()) {
             vibrator.vibrate(500);
         }
@@ -701,17 +636,14 @@ public class MainActivity extends AppCompatActivity {
 
     @JavascriptInterface
     public void setMediaChooser(String option) {
-        //  Toast.makeText(this, "set to " + option, Toast.LENGTH_SHORT).show();
         mediaChooser = option;
-//        Toast.makeText(this, "hello", Toast.LENGTH_SHORT).show();
     }
 
     @JavascriptInterface
     public void routeTo(String lat, String lng) {
         String latitude = lat;
         String longitude = lng;
-       // latitude = "14.8527";
-       // longitude = "120.8160";
+
         Uri gmmIntentUri = Uri.parse("google.navigation:q=" + latitude + "," + longitude);
 
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
@@ -719,9 +651,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (mapIntent.resolveActivity(getPackageManager()) != null) {
             startActivity(mapIntent);
-          //  Toast.makeText(this, "Google Maps is installed", Toast.LENGTH_SHORT).show();
         } else {
-            //Toast.makeText(this, "Kindly consider installing Google Maps to utilize this functionality", Toast.LENGTH_SHORT).show();
             new AlertDialog.Builder(this)
                     .setMessage("Kindly consider installing Google Maps to utilize this functionality")
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -749,8 +679,6 @@ public class MainActivity extends AppCompatActivity {
         if (isLocationEnabled("false","responder")) {
 
             if (!isServiceRunning(ForegroundService.class)) {
-
-               // Toast.makeText(this, "start", Toast.LENGTH_SHORT).show();
                 Intent serviceIntent = new Intent(this, ForegroundService.class);
                 serviceIntent.putExtra("residentUserId", userId);
                 serviceIntent.putExtra("assistanceReqId", assistanceReqId);
@@ -764,7 +692,6 @@ public class MainActivity extends AppCompatActivity {
 
     @JavascriptInterface
     public void stopSharingLocation() {
-       // Toast.makeText(this, "stop", Toast.LENGTH_SHORT).show();
         Intent serviceIntent = new Intent(this, ForegroundService.class);
         stopService(serviceIntent);
         PersistentStorage.clearPersistentStorage(this);
@@ -775,14 +702,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onPositiveButtonClick() {
                         if(intentType.equals("settings") ) {
-//                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-//                            Uri uri = Uri.fromParts("package", getPackageName(), null);
-//                            intent.setData(uri);
-//                            startActivity(intent);
                             openAppSettings();
                         } else if(intentType.equals("location")){
-//                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-//                            startActivity(intent);
                             openLocationSettings();
                         }
                     }
@@ -803,11 +724,9 @@ public class MainActivity extends AppCompatActivity {
                 if(showAlert.equals("true")) {
                     showAlert("Grant Camera Permission", "To continue, please enable the camera permission in the app settings", "settings", "Open App Settings");
                 }
-
                 return false;
             }
         } else {
-
             return true;
         }
     }
@@ -825,10 +744,8 @@ public class MainActivity extends AppCompatActivity {
         };
         if (userType.equals("resident") || userType.equals("onLoad") ) {
             if (!hasPermissions(this, RESIDENT_PERMISSIONS)) {
-
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                         if(showAlert.equals("true")) {
-                          //  ActivityCompat.requestPermissions(this, RESIDENT_PERMISSIONS, LOCATION_PERMISSION_REQUEST_CODE);
                         }
                         return false;
                     } else {
@@ -840,7 +757,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 return true;
             }
-
         }
         if (userType.equals("responder")) {
             if (!hasPermissions(this, RESPONDER_PERMISSIONS)) {
@@ -848,7 +764,6 @@ public class MainActivity extends AppCompatActivity {
                     showAlert("Grant Location Permission", "To continue, please enable the location permission in the app settings and set it to  \"Allow all the time\".", "settings", "Open App Settings");
                 }
                         return false;
-
             } else {
 
                 return true;
@@ -861,15 +776,11 @@ public class MainActivity extends AppCompatActivity {
 
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (!LocationManagerCompat.isLocationEnabled(locationManager)) {
-
             if (showAlert.equals("true")) {
                 showAlert("Open Device's Location", "To continue, kindly turn on your device location.", "location", "Open Location Settings");
             }
-
-
             return false;
         } else {
-
             return true;
         }
     }
@@ -909,7 +820,6 @@ public class MainActivity extends AppCompatActivity {
     private void handleNotificationAction(Intent intent) {
         if (intent != null && intent.getAction() != null) {
             if (intent.getAction().equals("com.example.sagip.FINISH_ACTIVITY")) {
-                // Finish the MainActivity
                 finish();
             }
         }
@@ -955,9 +865,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Toast.makeText(this, "s"+e, Toast.LENGTH_SHORT).show();
         }
-
-
-
     }
 
 

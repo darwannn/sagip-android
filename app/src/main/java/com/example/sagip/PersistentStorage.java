@@ -26,7 +26,6 @@ public class PersistentStorage {
         SharedPreferences sharedPref = context.getSharedPreferences(PREFERENCE_FILE_KEY, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
 
-        // Clear all data
         editor.clear();
         editor.apply();
     }
