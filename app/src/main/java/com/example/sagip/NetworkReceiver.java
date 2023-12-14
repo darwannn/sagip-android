@@ -17,7 +17,6 @@ public class NetworkReceiver extends BroadcastReceiver {
             NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
             if (networkInfo != null && networkInfo.isConnected()) {
-                // Internet is available
                 if (isOfflineActivityActive(context)) {
                     closeOfflineActivity(context);
                 }
@@ -26,7 +25,6 @@ public class NetworkReceiver extends BroadcastReceiver {
                     openMainActivity(context);
                 }
             } else {
-                // No internet available
                 if (isMainActivityActive(context)) {
                     closeMainActivity(context);
                 }
@@ -49,7 +47,6 @@ public class NetworkReceiver extends BroadcastReceiver {
 
     private void openMainActivity(Context context) {
         Intent intent = new Intent(context, MainActivity.class);
-        //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
         MainActivity.isMainActivityActive = true;

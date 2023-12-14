@@ -1,31 +1,15 @@
 package com.example.sagip;
 
-
 import static com.example.sagip.ForegroundService.KEY_URL;
 
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-import android.media.AudioManager;
-import android.os.Build;
-import android.provider.Settings;
-import android.util.Log;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.example.sagip.MainActivity;
-import com.example.sagip.R;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.pusher.client.Pusher;
-import com.pusher.client.PusherOptions;
-import com.pusher.client.channel.Channel;
-import com.pusher.client.channel.SubscriptionEventListener;
 
 public class CloudMessagingService extends FirebaseMessagingService {
 
@@ -57,12 +41,9 @@ public class CloudMessagingService extends FirebaseMessagingService {
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .setSmallIcon(R.drawable.sagip_status_bar_icon)
-                // Add BigTextStyle for expandable notification
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(message)); // Use the message as the expanded text
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(message));
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
           notificationManager.notify(uniqueNotificationId, builder.build());
     }
-
-
 }

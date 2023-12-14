@@ -1,8 +1,5 @@
 package com.example.sagip;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.graphics.Color;
-import android.media.Image;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -11,25 +8,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
-
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Toast;
-
-import androidx.core.content.ContextCompat;
 
 public class PreparationsDialog {
     public static MainActivity mainActivity;
     public static Boolean locationOnUpdate, locationEnabledUpdate, cameraEnabledUpdate =  false;
     public static String actionUpdate = "";
     private static AlertDialog currentDialog;
+
     public interface OnPositiveButtonClickListener {
         void onPositiveButtonClick();
     }
@@ -49,9 +34,9 @@ public class PreparationsDialog {
         ImageView locationDisabledButton = view.findViewById(R.id.locationDisabledArrow);
         ImageView locationPermissionButton = view.findViewById(R.id.locationPermissionArrow);
 
-      LinearLayout cameraPermissionLayout = view.findViewById(R.id.cameraPermissionLayout);
+        LinearLayout cameraPermissionLayout = view.findViewById(R.id.cameraPermissionLayout);
         LinearLayout locationPermissionLayout = view.findViewById(R.id.locationPermissionLayout);
-    LinearLayout locationDisabledLayout = view.findViewById(R.id.locationDisabledLayout);
+        LinearLayout locationDisabledLayout = view.findViewById(R.id.locationDisabledLayout);
         locationOnInitial= locationOn;
         locationEnabledInitial=locationEnabled;
         cameraEnabledInitial=cameraEnabled;
@@ -173,7 +158,6 @@ public class PreparationsDialog {
         });
 
 //        if(!(locationOn && locationEnabled && locationEnabled)) {
-//
 //            prePositiveButton.setEnabled(true);
 //        } else {
 //            prePositiveButton.setEnabled(false);
@@ -187,14 +171,10 @@ public class PreparationsDialog {
 
     public static void updateDialogLayout(boolean locationOn, boolean cameraEnabled, boolean locationEnabled) {
         if (mainActivity != null && currentDialog != null && currentDialog.isShowing()) {
-
             try {
-
-
                 ImageView cameraPermissionArrow = currentDialog.findViewById(R.id.cameraPermissionArrow);
                 ImageView locationDisabledArrow = currentDialog.findViewById(R.id.locationDisabledArrow);
                 ImageView locationPermissionArrow = currentDialog.findViewById(R.id.locationPermissionArrow);
-
                 ImageView cameraPermissionCheck = currentDialog.findViewById(R.id.cameraPermissionCheck);
                 ImageView locationDisabledCheck = currentDialog.findViewById(R.id.locationDisabledCheck);
                 ImageView locationPermissionCheck = currentDialog.findViewById(R.id.locationPermissionCheck);
@@ -202,8 +182,6 @@ public class PreparationsDialog {
                     currentDialog.findViewById(R.id.locationPermissionLayout).post(new Runnable() {
                         @Override
                         public void run() {
-                            // if(!locationEnabledInitial) {
-
                             if (locationEnabled) {
                                 locationEnabledUpdate = true;
                                 locationPermissionArrow.setVisibility(View.GONE);
@@ -213,8 +191,6 @@ public class PreparationsDialog {
                                 locationPermissionArrow.setVisibility(View.VISIBLE);
                                 locationPermissionCheck.setVisibility(View.GONE);
                             }
-
-                            // }
                         }
                     });
                 }
@@ -224,9 +200,6 @@ public class PreparationsDialog {
                     currentDialog.findViewById(R.id.cameraPermissionLayout).post(new Runnable() {
                         @Override
                         public void run() {
-                            //  if(!cameraEnabledInitial) {
-
-
                             if (cameraEnabled) {
                                 cameraEnabledUpdate = true;
                                 cameraPermissionArrow.setVisibility(View.GONE);
@@ -236,18 +209,15 @@ public class PreparationsDialog {
                                 cameraPermissionArrow.setVisibility(View.VISIBLE);
                                 cameraPermissionCheck.setVisibility(View.GONE);
                             }
-
-                            //  }
                         }
 
                     });
                 }
+
                 if (locationDisabledArrow != null && locationDisabledCheck != null) {
                     currentDialog.findViewById(R.id.locationDisabledLayout).post(new Runnable() {
                         @Override
                         public void run() {
-                            //   if(!locationEnabledInitial) {
-
                             if (locationOn) {
                                 locationOnUpdate = true;
                                 locationDisabledArrow.setVisibility(View.GONE);
@@ -257,12 +227,9 @@ public class PreparationsDialog {
                                 locationDisabledArrow.setVisibility(View.VISIBLE);
                                 locationDisabledCheck.setVisibility(View.GONE);
                             }
-
-                            //  }
                         }
                     });
                 }
-
 
                 currentDialog.findViewById(R.id.prePositiveButton).post(new Runnable() {
                     @Override
@@ -288,8 +255,7 @@ public class PreparationsDialog {
 
         } catch(Exception e){
             e.printStackTrace();
-                Toast.makeText(mainActivity, "Exception in updateDialogLayout: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            Log.e("UpdateDialog", "Exception in updateDialogLayout: " + e.getMessage());
+            Log.e("UpdateDialog", "Exception: " + e.getMessage());
         }
     }
     }

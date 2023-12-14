@@ -3,11 +3,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
-import android.widget.Toast;
 
 public class PermissionBroadcastReceiver extends BroadcastReceiver {
 
    public MainActivity mainActivity;
+    //do not remove
     public PermissionBroadcastReceiver() {
 
     }
@@ -23,7 +23,6 @@ public class PermissionBroadcastReceiver extends BroadcastReceiver {
                 @Override
                 public void run() {
                     try {
-                    //    Toast.makeText(context, "taostify", Toast.LENGTH_SHORT).show();
                         PreparationsDialog.updateDialogLayout(
                                 mainActivity.isLocationOn("false"),
                                 mainActivity.isCameraEnabled("false"),
